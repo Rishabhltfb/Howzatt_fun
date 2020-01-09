@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:howzatt_fun/pages/homepage.dart';
+
 void main() => runApp(MaterialApp(
-      theme:
-          ThemeData(primaryColor: Colors.red, accentColor: Colors.yellowAccent),
+      theme: ThemeData(
+          primaryColor: Color(0xffdb002e), accentColor: Colors.yellowAccent),
       debugShowCheckedModeBanner: false,
       // home: SplashScreen(),
       routes: {
         '/': (BuildContext context) => SplashScreen(),
+        '/homepage': (BuildContext context) => HomePage(),
       },
     ));
 
@@ -20,8 +23,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 4), () {
-      // Navigator.pushReplacementNamed(context, '/routename');
+    Timer(Duration(seconds: 3), () {
+      Navigator.pushReplacementNamed(context, '/homepage');
     });
   }
 
@@ -32,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
         fit: StackFit.expand,
         children: <Widget>[
           Container(
-            decoration: BoxDecoration(color: Colors.redAccent),
+            decoration: BoxDecoration(color: Color(0xffdb002e)),
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
