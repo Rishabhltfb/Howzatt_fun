@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:howzatt_fun/pages/entry.dart';
 import 'dart:async';
 
 import 'package:howzatt_fun/pages/homepage.dart';
 
-void main() => runApp(MaterialApp(
-      theme: ThemeData(
-          primaryColor: Color(0xffdb002e), accentColor: Colors.yellowAccent),
-      debugShowCheckedModeBanner: false,
-      // home: SplashScreen(),
-      routes: {
-        '/': (BuildContext context) => SplashScreen(),
-        '/homepage': (BuildContext context) => HomePage(),
-      },
-    ));
+void main() => runApp(
+      MaterialApp(
+        theme: ThemeData(
+            primaryColor: Color(0xffdb002e), accentColor: Colors.yellowAccent),
+        debugShowCheckedModeBanner: false,
+        // home: SplashScreen(),
+        routes: {
+          '/': (BuildContext context) => SplashScreen(),
+          '/homepage': (BuildContext context) => HomePage(),
+          '/entrypage': (BuildContext context) => EntryPage(),
+        },
+      ),
+    );
 
 class SplashScreen extends StatefulWidget {
   @override

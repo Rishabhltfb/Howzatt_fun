@@ -10,11 +10,25 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextStyle dropdownMenuItem =
       TextStyle(color: Colors.black, fontSize: 18);
-
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final primary = Color(0xffdb002e);
   final secondary = Color(0xfff29a94);
 
   final List<Map> schoolLists = [
+    {
+      "name": "Rishabh Sharma",
+      "fee": "500",
+      "contact": "38478342938",
+      "overs": "8",
+      "pic": "assets/user.jpg",
+    },
+    {
+      "name": "Sarthak Gupta",
+      "fee": "500",
+      "contact": "38478342938",
+      "overs": "10",
+      "pic": "assets/user2.png",
+    },
     {
       "name": "Rishabh Sharma",
       "fee": "500",
@@ -129,10 +143,32 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildSideDrawer(BuildContext context) {
+    return Drawer(
+      child: Column(
+        children: <Widget>[
+          AppBar(
+            automaticallyImplyLeading: false,
+            title: Text('Choose'),
+          ),
+          ListTile(
+            leading: Icon(Icons.edit),
+            title: Text('Add Entry'),
+            onTap: () {
+              Navigator.pushReplacementNamed(context, '/entrypage');
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Color(0xfff0f0f0),
+      drawer: _buildSideDrawer(context),
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -163,7 +199,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () => _scaffoldKey.currentState.openDrawer(),
                         icon: Icon(
                           Icons.menu,
                           color: Colors.white,
@@ -198,7 +234,10 @@ class _HomePageState extends State<HomePage> {
                           backgroundColor: Colors.white,
                           elevation: 10,
                           child: Icon(Icons.add, size: 50, color: secondary),
-                          onPressed: () => {},
+                          onPressed: () => {
+                            Navigator.pushReplacementNamed(
+                                context, '/entrypage')
+                          },
                         ),
                       ),
                     ),
