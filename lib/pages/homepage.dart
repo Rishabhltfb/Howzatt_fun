@@ -234,9 +234,9 @@ class _HomePageState extends State<HomePage> {
                           backgroundColor: Colors.white,
                           elevation: 10,
                           child: Icon(Icons.add, size: 50, color: secondary),
-                          onPressed: () => {
+                          onPressed: () {
                             Navigator.pushReplacementNamed(
-                                context, '/entrypage')
+                                context, '/entrypage');
                           },
                         ),
                       ),
