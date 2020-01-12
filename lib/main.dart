@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:howzatt_fun/pages/auth.dart';
 import 'package:howzatt_fun/pages/entry.dart';
 import 'dart:async';
 
@@ -12,6 +13,7 @@ void main() => runApp(
         // home: SplashScreen(),
         routes: {
           '/': (BuildContext context) => SplashScreen(),
+          '/authpage': (BuildContext context) => AuthPage(),
           '/homepage': (BuildContext context) => HomePage(),
           '/entrypage': (BuildContext context) => EntryPage(),
         },
@@ -27,8 +29,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, '/homepage');
+    Timer(Duration(seconds: 2), () {
+      Navigator.pushReplacementNamed(context, '/authpage');
     });
   }
 

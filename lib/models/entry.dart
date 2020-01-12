@@ -6,6 +6,7 @@ class Entry {
   final double price;
   final double overs;
   final String image;
+  final String userId;
 
   Entry({
     @required this.name,
@@ -13,5 +14,6 @@ class Entry {
     @required this.price,
     @required this.overs,
     @required this.image,
+    @required this.userId,
   });
 }
