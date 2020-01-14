@@ -60,9 +60,11 @@ class _AuthPageState extends State<AuthPage> {
               _formData['password'] = value;
             },
           ),
-          _authMode == AuthMode.Login ? null : const SizedBox(height: 10.0),
           _authMode == AuthMode.Login
-              ? null
+              ? Container()
+              : const SizedBox(height: 10.0),
+          _authMode == AuthMode.Login
+              ? Container()
               : TextFormField(
                   obscureText: true,
                   decoration: InputDecoration(
