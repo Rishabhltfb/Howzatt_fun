@@ -1,8 +1,8 @@
-import 'package:scoped_model/scoped_model.dart';
 import 'dart:convert';
+import 'dart:async';
 
 import '../models/auth.dart';
-import 'dart:async';
+import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
@@ -60,7 +60,7 @@ class UserModel extends ConnectedModel {
     return {'success': !hasError, 'message': message};
   }
 
-  void logout() async {
+  void logout() {
     _authenticatedUser = null;
   }
 }

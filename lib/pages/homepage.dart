@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/logout.dart';
+
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
   // static final String path = "lib/src/pages/lists/list2.dart";
@@ -157,7 +159,9 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               Navigator.pushReplacementNamed(context, '/entrypage');
             },
-          )
+          ),
+          Divider(),
+          LogoutListTile(),
         ],
       ),
     );

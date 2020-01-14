@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/entry.dart';
+import '../widgets/logout.dart';
 
 class EntryPage extends StatefulWidget {
   @override
@@ -35,7 +36,9 @@ class _EntryPageState extends State<EntryPage> {
             onTap: () {
               Navigator.pushReplacementNamed(context, '/homepage');
             },
-          )
+          ),
+          Divider(),
+          LogoutListTile(),
         ],
       ),
     );
