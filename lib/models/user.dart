@@ -6,10 +6,10 @@ class User {
   String userId;
   String userEmail;
 
-  User(
+  User({
     @required isAdmin,
-    @required name,
+    @required token,
     @required userId,
     @required userEmail,
-  );
+  });
 }

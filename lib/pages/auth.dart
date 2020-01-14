@@ -1,20 +1,96 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../models/auth.dart';
+import '../scoped_models/main.dart';
+
 class AuthPage extends StatefulWidget {
   @override
   _AuthPageState createState() => _AuthPageState();
 }
 
 class _AuthPageState extends State<AuthPage> {
+  final MainModel _model = MainModel();
   bool formVisible;
-  int _formsIndex;
+  AuthMode _authMode;
 
   @override
   void initState() {
     super.initState();
     formVisible = false;
-    _formsIndex = 1;
+    _authMode = AuthMode.Login;
+  }
+
+  final TextEditingController _passwordTextController = TextEditingController();
+
+  final Map<String, dynamic> _formData = {
+    'email': null,
+    'password': null,
+  };
+
+  Widget _buildForm() {
+    return Container(
+      margin: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      child: ListView(
+        shrinkWrap: true,
+        padding: const EdgeInsets.all(16.0),
+        children: <Widget>[
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: "Enter email",
+              border: OutlineInputBorder(),
+            ),
+            onSaved: (String value) {
+              _formData['email'] = value;
+            },
+          ),
+          const SizedBox(height: 10.0),
+          TextFormField(
+            obscureText: true,
+            decoration: InputDecoration(
+              hintText: "Enter password",
+              border: OutlineInputBorder(),
+            ),
+            controller: _passwordTextController,
+            onSaved: (String value) {
+              _formData['password'] = value;
+            },
+          ),
+          _authMode == AuthMode.Login ? null : const SizedBox(height: 10.0),
+          _authMode == AuthMode.Login
+              ? null
+              : TextFormField(
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: "Confirm password",
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (String value) {
+                    if (_passwordTextController.text != value) {
+                      return 'Password do not match.';
+                    }
+                  },
+                ),
+          const SizedBox(height: 10.0),
+          RaisedButton(
+            color: Color(0xffdb002e),
+            textColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Text(_authMode == AuthMode.Login ? "Login" : "Signup"),
+            onPressed: () {
+              // _submitForm();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -73,7 +149,7 @@ class _AuthPageState extends State<AuthPage> {
                         onPressed: () {
                           setState(() {
                             formVisible = true;
-                            _formsIndex = 1;
+                            _authMode = AuthMode.Login;
                           });
                         },
                       ),
@@ -91,7 +167,7 @@ class _AuthPageState extends State<AuthPage> {
                         onPressed: () {
                           setState(() {
                             formVisible = true;
-                            _formsIndex = 2;
+                            _authMode = AuthMode.Signup;
                           });
                         },
                       ),
@@ -120,188 +196,77 @@ class _AuthPageState extends State<AuthPage> {
             child: (!formVisible)
                 ? null
                 : Container(
-                    color: Colors.black54,
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                    child: Form(
+                      child: Container(
+                        color: Colors.black54,
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            RaisedButton(
-                              textColor: _formsIndex == 1
-                                  ? Colors.white
-                                  : Colors.black,
-                              color: _formsIndex == 1
-                                  ? Color(0xffdb002e)
-                                  : Colors.white,
-                              child: Text("Login"),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20.0)),
-                              onPressed: () {
-                                setState(() {
-                                  _formsIndex = 1;
-                                });
-                              },
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                RaisedButton(
+                                  textColor: _authMode == AuthMode.Login
+                                      ? Colors.white
+                                      : Colors.black,
+                                  color: _authMode == AuthMode.Login
+                                      ? Color(0xffdb002e)
+                                      : Colors.white,
+                                  child: Text("Login"),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(20.0)),
+                                  onPressed: () {
+                                    setState(() {
+                                      _authMode = AuthMode.Login;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(width: 10.0),
+                                RaisedButton(
+                                  textColor: _authMode == AuthMode.Signup
+                                      ? Colors.white
+                                      : Colors.black,
+                                  color: _authMode == AuthMode.Signup
+                                      ? Color(0xffdb002e)
+                                      : Colors.white,
+                                  child: Text("Signup"),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(20.0)),
+                                  onPressed: () {
+                                    setState(() {
+                                      _authMode = AuthMode.Signup;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(width: 10.0),
+                                IconButton(
+                                  color: Colors.white,
+                                  icon: Icon(Icons.clear),
+                                  onPressed: () {
+                                    setState(() {
+                                      formVisible = false;
+                                    });
+                                  },
+                                )
+                              ],
                             ),
-                            const SizedBox(width: 10.0),
-                            RaisedButton(
-                              textColor: _formsIndex == 2
-                                  ? Colors.white
-                                  : Colors.black,
-                              color: _formsIndex == 2
-                                  ? Color(0xffdb002e)
-                                  : Colors.white,
-                              child: Text("Signup"),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20.0)),
-                              onPressed: () {
-                                setState(() {
-                                  _formsIndex = 2;
-                                });
-                              },
-                            ),
-                            const SizedBox(width: 10.0),
-                            IconButton(
-                              color: Colors.white,
-                              icon: Icon(Icons.clear),
-                              onPressed: () {
-                                setState(() {
-                                  formVisible = false;
-                                });
-                              },
+                            Container(
+                              child: AnimatedSwitcher(
+                                duration: Duration(milliseconds: 300),
+                                child: _buildForm(),
+                              ),
                             )
                           ],
                         ),
-                        Container(
-                          child: AnimatedSwitcher(
-                            duration: Duration(milliseconds: 300),
-                            child:
-                                _formsIndex == 1 ? LoginForm() : SignupForm(),
-                          ),
-                        )
-                      ],
+                      ),
                     ),
                   ),
           )
         ],
       ),
     ));
-  }
-}
-
-class LoginForm extends StatelessWidget {
-  const LoginForm({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      child: ListView(
-        shrinkWrap: true,
-        padding: const EdgeInsets.all(16.0),
-        children: <Widget>[
-          TextFormField(
-            decoration: InputDecoration(
-              hintText: "Enter email",
-              border: OutlineInputBorder(),
-            ),
-            keyboardType: TextInputType.emailAddress,
-            validator: (String value) {
-              if (value.isEmpty ||
-                  !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                      .hasMatch(value)) {
-                return 'Please enter a valid email';
-              }
-            },
-            onSaved: (String value) {},
-          ),
-          const SizedBox(height: 10.0),
-          TextFormField(
-            obscureText: true,
-            decoration: InputDecoration(
-              hintText: "Enter password",
-              border: OutlineInputBorder(),
-            ),
-            onSaved: (String value) {},
-          ),
-          const SizedBox(height: 10.0),
-          RaisedButton(
-            color: Color(0xffdb002e),
-            textColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: Text("Login"),
-            onPressed: () {
-              Navigator.pushReplacementNamed(context, '/homepage');
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SignupForm extends StatelessWidget {
-  const SignupForm({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      child: ListView(
-        shrinkWrap: true,
-        padding: const EdgeInsets.all(16.0),
-        children: <Widget>[
-          TextFormField(
-            decoration: InputDecoration(
-              hintText: "Enter email",
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 10.0),
-          TextFormField(
-            obscureText: true,
-            decoration: InputDecoration(
-              hintText: "Enter password",
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 10.0),
-          TextFormField(
-            obscureText: true,
-            decoration: InputDecoration(
-              hintText: "Confirm password",
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 10.0),
-          RaisedButton(
-            color: Color(0xffdb002e),
-            textColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: Text("Signup"),
-            onPressed: () {},
-          ),
-        ],
-      ),
-    );
   }
 }
