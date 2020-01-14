@@ -1,6 +1,7 @@
 import 'package:scoped_model/scoped_model.dart';
 import 'dart:convert';
 
+import '../models/auth.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
@@ -14,8 +15,8 @@ class UserModel extends ConnectedModel {
     return _authenticatedUser;
   }
 
-  Future<Map<String, dynamic>> authenticate(
-      String email, String password, int selMode) async {
+  Future<Map<String, dynamic>> authenticate(String email, String password,
+      [AuthMode mode = AuthMode.Login]) async {
     final Map<String, dynamic> authData = {
       'email': email,
       'password': password,
@@ -23,7 +24,7 @@ class UserModel extends ConnectedModel {
     };
 
     http.Response response;
-    if (selMode == 1) {
+    if (mode == AuthMode.Login) {
       response = await http.post(
         'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDlrjs7x7jXzLRBmQGdYoLmWkgSbdGKXzU',
         body: json.encode(authData),

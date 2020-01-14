@@ -10,6 +10,7 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final MainModel _model = MainModel();
   bool formVisible;
   AuthMode _authMode;
@@ -60,9 +61,11 @@ class _AuthPageState extends State<AuthPage> {
               _formData['password'] = value;
             },
           ),
-          _authMode == AuthMode.Login ? null : const SizedBox(height: 10.0),
           _authMode == AuthMode.Login
-              ? null
+              ? Container()
+              : const SizedBox(height: 10.0),
+          _authMode == AuthMode.Login
+              ? Container()
               : TextFormField(
                   obscureText: true,
                   decoration: InputDecoration(
@@ -85,12 +88,43 @@ class _AuthPageState extends State<AuthPage> {
             ),
             child: Text(_authMode == AuthMode.Login ? "Login" : "Signup"),
             onPressed: () {
-              // _submitForm();
+              _submitForm();
             },
           ),
         ],
       ),
     );
+  }
+
+  void _submitForm() async {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
+    _formKey.currentState.save();
+    Map<String, dynamic> successInformation;
+    successInformation = await _model.authenticate(
+        _formData['email'], _formData['password'], _authMode);
+    if (successInformation['success']) {
+      Navigator.pushReplacementNamed(context, '/homepage');
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('An error has Occurred'),
+            content: Text(successInformation['message']),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Okay'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -197,6 +231,7 @@ class _AuthPageState extends State<AuthPage> {
                 ? null
                 : Container(
                     child: Form(
+                      key: _formKey,
                       child: Container(
                         color: Colors.black54,
                         alignment: Alignment.center,
