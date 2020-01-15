@@ -4,6 +4,7 @@ import 'package:howzatt_fun/pages/entry.dart';
 
 import 'package:howzatt_fun/pages/homepage.dart';
 import 'package:howzatt_fun/pages/splash.dart';
+import 'package:howzatt_fun/pages/user_admin.dart';
 import 'package:howzatt_fun/scoped_models/main.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -16,6 +17,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final MainModel _model = MainModel();
+  @override
+  void initState() {
+    super.initState();
+    _model.fetchUsers();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +37,7 @@ class _MyAppState extends State<MyApp> {
             '/authpage': (BuildContext context) => AuthPage(),
             '/homepage': (BuildContext context) => HomePage(),
             '/entrypage': (BuildContext context) => EntryPage(),
+            '/admin': (BuildContext context) => UserAdminPage(_model),
           },
         ));
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:howzatt_fun/widgets/admin.dart';
 
 import '../models/entry.dart';
 import '../widgets/logout.dart';
@@ -37,6 +38,8 @@ class _EntryPageState extends State<EntryPage> {
               Navigator.pushReplacementNamed(context, '/homepage');
             },
           ),
+          Divider(),
+          AdminListTile(),
           Divider(),
           LogoutListTile(),
         ],
