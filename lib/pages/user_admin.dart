@@ -63,7 +63,7 @@ class UserAdminPage extends StatelessWidget {
         ),
         body: TabBarView(
           children: <Widget>[
-            RequestPage(),
+            UserRequestPage(model),
             UserListPage(model),
           ],
         ),

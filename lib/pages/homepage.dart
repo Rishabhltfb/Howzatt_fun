@@ -5,7 +5,6 @@ import '../widgets/logout.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
-  // static final String path = "lib/src/pages/lists/list2.dart";
 
   _HomePageState createState() => _HomePageState();
 }

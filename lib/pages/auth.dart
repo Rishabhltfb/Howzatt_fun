@@ -29,6 +29,10 @@ class _AuthPageState extends State<AuthPage> {
     'password': null,
   };
 
+  Future<Null> _fetchAllUser() async {
+    await _model.fetchUsers();
+  }
+
   Widget _buildForm() {
     return Container(
       margin: const EdgeInsets.all(16.0),
@@ -76,6 +80,7 @@ class _AuthPageState extends State<AuthPage> {
                     if (_passwordTextController.text != value) {
                       return 'Password do not match.';
                     }
+                    return null;
                   },
                 ),
           const SizedBox(height: 10.0),
@@ -181,6 +186,7 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         child: Text("Login"),
                         onPressed: () {
+                          _fetchAllUser();
                           setState(() {
                             formVisible = true;
                             _authMode = AuthMode.Login;
@@ -199,6 +205,7 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         child: Text("Signup"),
                         onPressed: () {
+                          _fetchAllUser();
                           setState(() {
                             formVisible = true;
                             _authMode = AuthMode.Signup;

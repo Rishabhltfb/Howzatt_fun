@@ -9,11 +9,11 @@ class User {
   String entryId;
 
   User({
-    @required isAdmin,
-    @required isEnabled,
-    @required token,
-    @required userId,
-    @required userEmail,
-    @required entryId,
+    @required this.isAdmin,
+    @required this.isEnabled,
+    @required this.token,
+    @required this.userId,
+    @required this.userEmail,
+    @required this.entryId,
   });
 }

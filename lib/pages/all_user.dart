@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:howzatt_fun/pages/user_request.dart';
 
 import 'package:scoped_model/scoped_model.dart';
 import '../scoped_models/main.dart';
@@ -25,15 +24,7 @@ class _UserListPageState extends State<UserListPage> {
   Widget _buildEditButton(BuildContext context, int index, MainModel model) {
     return IconButton(
       icon: Icon(Icons.edit),
-      onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (BuildContext context) {
-              return RequestPage();
-            },
-          ),
-        );
-      },
+      onPressed: () {},
     );
   }
 
@@ -63,7 +54,9 @@ class _UserListPageState extends State<UserListPage> {
                       backgroundImage: AssetImage('assets/user.jpg'),
                     ),
                     title: Text(model.userList[index].userEmail),
-                    subtitle: Text('something'),
+                    subtitle: Text(model.userList[index].isEnabled
+                        ? 'Enabled'
+                        : 'Not Enabled'),
                     trailing: _buildEditButton(context, index, model),
                   ),
                   Divider(),

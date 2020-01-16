@@ -13,7 +13,7 @@ class ConnectedModel extends Model {
 }
 
 class UserModel extends ConnectedModel {
-  User get user {
+  User get authenticatedUser {
     return _authenticatedUser;
   }
 
@@ -21,20 +21,20 @@ class UserModel extends ConnectedModel {
     return List.from(_userList);
   }
 
+  List<User> get disabledUsers {
+    return _userList.where((User user) => !user.isEnabled).toList();
+  }
+
   List<User> get userRequests {
     return _userList.where((User user) => !user.isEnabled).toList();
   }
 
   void setAuthenticatedUser({String token, String email, String userId}) {
-    //query authenticated user in users list and get isAdmin and isEnabled
-    _authenticatedUser = User(
-      isAdmin: false,
-      isEnabled: false,
-      token: token,
-      userId: userId,
-      userEmail: email,
-      entryId: null,
-    );
+    User currentUser = _userList.firstWhere((User user) {
+      return user.userId == userId;
+    });
+    _authenticatedUser = currentUser;
+    _authenticatedUser.token = token;
   }
 
   Future<Null> fetchUsers() {
@@ -45,7 +45,6 @@ class UserModel extends ConnectedModel {
         .then<Null>((http.Response response) {
       final List<User> fetchedUserList = [];
       final Map<String, dynamic> userListData = json.decode(response.body);
-      print(userListData);
       if (userListData == null) {
         _isLoading = false;
         notifyListeners();
@@ -53,10 +52,6 @@ class UserModel extends ConnectedModel {
       }
 
       userListData.forEach((String entryId, dynamic userData) {
-        print(userData['email']);
-        print(userData['isAdmin']);
-        print(userData['isEnabled']);
-        print(userData['userId']);
         final User user = User(
           entryId: entryId,
           isAdmin: userData['isAdmin'],
@@ -66,7 +61,6 @@ class UserModel extends ConnectedModel {
           userEmail: userData['email'],
         );
         fetchedUserList.add(user);
-        print(user.userEmail);
       });
       _userList = fetchedUserList;
       _isLoading = false;
@@ -81,7 +75,6 @@ class UserModel extends ConnectedModel {
   Future<bool> addUserEntry(String email, String userId) async {
     _isLoading = true;
     notifyListeners();
-    print("add User Entry function triggered ${email} and ${userId}");
     final Map<String, dynamic> userEntry = {
       'isAdmin': false,
       'isEnabled': false,
@@ -96,13 +89,15 @@ class UserModel extends ConnectedModel {
 
       if (response.statusCode != 200 && response.statusCode != 201) {
         _isLoading = false;
+        notifyListeners();
         return false;
       }
+
       final User newUser = User(
         isAdmin: false,
         isEnabled: false,
         userEmail: email,
-        token: null,
+        token: '',
         userId: userId,
         entryId: json.decode(response.body)['name'],
       );
@@ -117,30 +112,18 @@ class UserModel extends ConnectedModel {
     }
   }
 
-  Future<bool> enableUser(
-      String userEmail, String userId, String entryId, int index) {
+  Future<bool> enableUser(String entryId) {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> updateData = {
-      'isAdmin': false,
       'isEnabled': true,
-      'userId': userId,
-      'email': userEmail,
     };
     return http
-        .put('https://howzatt-fun.firebaseio.com/users/${entryId}.json',
+        .patch('https://howzatt-fun.firebaseio.com/users/${entryId}.json',
             body: json.encode(updateData))
         .then((http.Response response) {
       _isLoading = false;
-      final User updatedUser = User(
-        isAdmin: false,
-        isEnabled: true,
-        token: null,
-        userId: userId,
-        userEmail: userEmail,
-        entryId: entryId,
-      );
-      _userList[index] = updatedUser;
+      fetchUsers();
       notifyListeners();
       return true;
     }).catchError((error) {
@@ -157,7 +140,6 @@ class UserModel extends ConnectedModel {
       'password': password,
       'returnSecureToken': true
     };
-
     http.Response response;
     if (mode == AuthMode.Login) {
       response = await http.post(
@@ -170,7 +152,7 @@ class UserModel extends ConnectedModel {
           'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDlrjs7x7jXzLRBmQGdYoLmWkgSbdGKXzU',
           body: json.encode(authData),
           headers: {'Content-Type': 'application/json'});
-      addUserEntry(email, json.decode(response.body)['localId']);
+      await addUserEntry(email, json.decode(response.body)['localId']);
     }
 
     final Map<String, dynamic> responseData = json.decode(response.body);
