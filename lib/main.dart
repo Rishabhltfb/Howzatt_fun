@@ -28,13 +28,12 @@ class _MyAppState extends State<MyApp> {
         model: _model,
         child: MaterialApp(
           theme: ThemeData(
-              primaryColor: Color(0xffdb002e),
-              accentColor: Colors.yellowAccent),
+              primaryColor: Color(0xffdb002e), accentColor: Colors.deepPurple),
           debugShowCheckedModeBanner: false,
           routes: {
             '/': (BuildContext context) => SplashPage(),
             '/authpage': (BuildContext context) => AuthPage(),
-            '/homepage': (BuildContext context) => HomePage(),
+            '/homepage': (BuildContext context) => HomePage(_model),
             '/entrypage': (BuildContext context) => EntryPage(),
             '/admin': (BuildContext context) => UserAdminPage(_model),
           },

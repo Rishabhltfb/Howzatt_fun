@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:howzatt_fun/widgets/admin.dart';
+import 'package:scoped_model/scoped_model.dart';
 
+import '../scoped_models/main.dart';
 import '../models/entry.dart';
 import '../widgets/logout.dart';
 
@@ -17,7 +19,7 @@ class _EntryPageState extends State<EntryPage> {
     'overs': null,
     'price': null,
     'contact': null,
-    'image': 'assets/user.jpg'
+    'userId': null,
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final primary = Color(0xffdb002e);
@@ -50,7 +52,6 @@ class _EntryPageState extends State<EntryPage> {
   Widget _buildNameTextField(Entry entry) {
     return TextFormField(
       decoration: InputDecoration(labelText: 'Entry Name'),
-      initialValue: entry == null ? '' : entry.name,
       validator: (String value) {
         if (value.isEmpty || value.length < 3) {
           return 'Name is required and should be 3+ character long.';
@@ -67,7 +68,6 @@ class _EntryPageState extends State<EntryPage> {
     return TextFormField(
       decoration: InputDecoration(labelText: 'Contact Number'),
       keyboardType: TextInputType.number,
-      initialValue: entry == null ? '' : entry.contact,
       validator: (String value) {
         if (value.isEmpty || value.length != 10) {
           return 'Description is required and should be 10 character long.';
@@ -84,7 +84,6 @@ class _EntryPageState extends State<EntryPage> {
     return TextFormField(
       decoration: InputDecoration(labelText: 'Entry Price'),
       keyboardType: TextInputType.number,
-      initialValue: entry == null ? '' : entry.price.toString(),
       validator: (String value) {
         if (value.isEmpty ||
             !RegExp(r'^(?:[1-9]\d*|0)?(?:\.\d+)?$').hasMatch(value)) {
@@ -116,63 +115,52 @@ class _EntryPageState extends State<EntryPage> {
     );
   }
 
-  // void _submitForm(
-  //     Function addEntry, Function updateProduct, Function setSelectedProduct,
-  //     [int selectedProductIndex]) {
-  //   if (!_formKey.currentState.validate()) {
-  //     return;
-  //   }
-  //   _formKey.currentState.save();
-  //   if (selectedProductIndex == -1) {
-  //     addProduct(
-  //       _formData['title'],
-  //       _formData['description'],
-  //       _formData['image'],
-  //       _formData['price'],
-  //     ).then(
-  //       (bool success) {
-  //         if (success) {
-  //           Navigator.pushReplacementNamed(context, '/products')
-  //               .then((_) => setSelectedProduct(null));
-  //         } else {
-  //           showDialog(
-  //             context: context,
-  //             builder: (BuildContext context) {
-  //               return AlertDialog(
-  //                 title: Text('Something went wrong!'),
-  //                 content: Text('Please try again!'),
-  //                 actions: <Widget>[
-  //                   FlatButton(
-  //                     onPressed: () => Navigator.of(context).pop(),
-  //                     child: Text('Okay'),
-  //                   )
-  //                 ],
-  //               );
-  //             },
-  //           );
-  //         }
-  //       },
-  //     );
-  //   } else {
-  //     updateProduct(
-  //       _formData['title'],
-  //       _formData['description'],
-  //       _formData['image'],
-  //       _formData['price'],
-  //     ).then(
-  //       (_) => Navigator.pushReplacementNamed(context, '/products').then(
-  //         (_) => setSelectedProduct(null),
-  //       ),
-  //     );
-  //   }
-  // }
+  void _submitForm(MainModel model) {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
+    _formKey.currentState.save();
+    model
+        .addEntry(
+      name: _formData['name'],
+      contact: _formData['contact'],
+      price: _formData['price'],
+      userId: 'Verified By ...',
+      overs: _formData['overs'],
+    )
+        .then(
+      (bool success) {
+        if (success) {
+          Navigator.pushReplacementNamed(context, '/homepage');
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Something went wrong!'),
+                content: Text('Please try again!'),
+                actions: <Widget>[
+                  FlatButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('Okay'),
+                  )
+                ],
+              );
+            },
+          );
+        }
+      },
+    );
+  }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(MainModel model) {
     return RaisedButton(
       color: primary,
       child: Text('Save'),
       textColor: Colors.white,
-      onPressed: () {},
+      onPressed: () {
+        _submitForm(model);
+      },
     );
   }
 
@@ -185,24 +173,28 @@ class _EntryPageState extends State<EntryPage> {
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
       },
-      child: Container(
-        margin: EdgeInsets.all(10.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: targetPadding / 2),
-            children: <Widget>[
-              _buildNameTextField(entry),
-              _buildContactTextField(entry),
-              _buildOverTextField(entry),
-              _buildPriceTextField(entry),
-              SizedBox(
-                height: 10.0,
+      child: ScopedModelDescendant(
+        builder: (BuildContext context, Widget child, MainModel model) {
+          return Container(
+            margin: EdgeInsets.all(10.0),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: targetPadding / 2),
+                children: <Widget>[
+                  _buildNameTextField(entry),
+                  _buildContactTextField(entry),
+                  _buildOverTextField(entry),
+                  _buildPriceTextField(entry),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  _buildSubmitButton(model),
+                ],
               ),
-              _buildSubmitButton(),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

@@ -2,14 +2,102 @@ import 'dart:convert';
 import 'dart:async';
 
 import '../models/auth.dart';
+import '../models/entry.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
 class ConnectedModel extends Model {
   List<User> _userList = [];
+  List<Entry> _entryList = [];
   User _authenticatedUser;
   bool _isLoading = false;
+}
+
+class EntryModel extends ConnectedModel {
+  List<Entry> get entryList {
+    return List.from(_entryList.reversed);
+  }
+
+  Future<Null> fetchEntries() async {
+    _isLoading = true;
+    notifyListeners();
+    return await http
+        .get('https://howzatt-fun.firebaseio.com/entries.json')
+        .then<Null>((http.Response response) {
+      final List<Entry> fetchedEntryList = [];
+      final Map<String, dynamic> entryListData = json.decode(response.body);
+      if (entryListData == null) {
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      entryListData.forEach((String id, dynamic entryData) {
+        final Entry entry = Entry(
+          id: id,
+          name: entryData['name'],
+          contact: entryData['contact'],
+          price: entryData['price'],
+          overs: entryData['overs'],
+          userId: entryData['userId'],
+        );
+        fetchedEntryList.add(entry);
+      });
+      _entryList = fetchedEntryList;
+      _isLoading = false;
+      notifyListeners();
+    }).catchError((error) {
+      _isLoading = false;
+      notifyListeners();
+      return;
+    });
+  }
+
+  Future<bool> addEntry(
+      {String name,
+      String contact,
+      String userId,
+      double price,
+      double overs}) async {
+    _isLoading = true;
+    notifyListeners();
+    final Map<String, dynamic> entryData = {
+      'name': name,
+      'contact': contact,
+      'userId': userId,
+      'price': price,
+      'overs': overs,
+    };
+    try {
+      final http.Response response = await http.post(
+          'https://howzatt-fun.firebaseio.com/entries.json',
+          body: json.encode(entryData));
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      final Entry newEntry = Entry(
+        id: responseData['name'],
+        name: name,
+        contact: contact,
+        price: price,
+        overs: overs,
+        userId: userId,
+      );
+      _entryList.add(newEntry);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }
 
 class UserModel extends ConnectedModel {

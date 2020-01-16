@@ -1,60 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:howzatt_fun/widgets/admin.dart';
+import 'package:scoped_model/scoped_model.dart';
 
+import '../scoped_models/main.dart';
 import '../widgets/logout.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  MainModel model;
+
+  HomePage(this.model);
 
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    widget.model.fetchEntries();
+    super.initState();
+  }
+
   final TextStyle dropdownMenuItem =
       TextStyle(color: Colors.black, fontSize: 18);
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final primary = Color(0xffdb002e);
   final secondary = Color(0xfff29a94);
 
-  final List<Map> schoolLists = [
-    {
-      "name": "Rishabh Sharma",
-      "fee": "500",
-      "contact": "38478342938",
-      "overs": "8",
-      "pic": "assets/user.jpg",
-    },
-    {
-      "name": "Sarthak Gupta",
-      "fee": "500",
-      "contact": "38478342938",
-      "overs": "10",
-      "pic": "assets/user2.png",
-    },
-    {
-      "name": "Rishabh Sharma",
-      "fee": "500",
-      "contact": "38478342938",
-      "overs": "8",
-      "pic": "assets/user.jpg",
-    },
-    {
-      "name": "Sarthak Gupta",
-      "fee": "500",
-      "contact": "38478342938",
-      "overs": "10",
-      "pic": "assets/user2.png",
-    },
-  ];
-
-  Widget _buildListItem(BuildContext context, int index) {
+  Widget _buildListItem(BuildContext context, int index, MainModel model) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
         color: Colors.white,
       ),
       width: double.infinity,
-      height: 140,
+      height: 160,
       margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: Row(
@@ -68,8 +47,7 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.circular(50),
               border: Border.all(width: 3, color: primary),
               image: DecorationImage(
-                  image: AssetImage(schoolLists[index]['pic']),
-                  fit: BoxFit.fill),
+                  image: AssetImage('assets/user2.png'), fit: BoxFit.fill),
             ),
           ),
           Expanded(
@@ -77,7 +55,7 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  schoolLists[index]['name'],
+                  model.entryList[index].name,
                   style: TextStyle(
                       color: primary,
                       fontWeight: FontWeight.bold,
@@ -96,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(schoolLists[index]['contact'],
+                    Text(model.entryList[index].contact,
                         style: TextStyle(
                             color: primary, fontSize: 13, letterSpacing: .3)),
                   ],
@@ -114,7 +92,9 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(schoolLists[index]['overs'],
+                    Text(
+                        model.entryList[index].overs.toInt().toString() +
+                            '  overs',
                         style: TextStyle(
                             color: primary, fontSize: 13, letterSpacing: .3)),
                   ],
@@ -132,7 +112,25 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(schoolLists[index]['fee'],
+                    Text(model.entryList[index].price.toString(),
+                        style: TextStyle(
+                            color: primary, fontSize: 13, letterSpacing: .3)),
+                  ],
+                ),
+                SizedBox(
+                  height: 7,
+                ),
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.verified_user,
+                      color: secondary,
+                      size: 20,
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(model.entryList[index].userId,
                         style: TextStyle(
                             color: primary, fontSize: 13, letterSpacing: .3)),
                   ],
@@ -179,78 +177,84 @@ class _HomePageState extends State<HomePage> {
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          child: Stack(
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.only(top: 145),
-                height: MediaQuery.of(context).size.height,
-                width: double.infinity,
-                child: ListView.builder(
-                    itemCount: schoolLists.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return _buildListItem(context, index);
-                    }),
-              ),
-              Container(
-                height: 140,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    color: primary,
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30),
-                        bottomRight: Radius.circular(30))),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      IconButton(
-                        onPressed: () => _scaffoldKey.currentState.openDrawer(),
-                        icon: Icon(
-                          Icons.menu,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        "Entries",
-                        style: TextStyle(color: Colors.white, fontSize: 24),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.filter_list,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+          child: ScopedModelDescendant(
+            builder: (BuildContext context, Widget child, MainModel model) {
+              return Stack(
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.only(top: 145),
+                    height: MediaQuery.of(context).size.height,
+                    width: double.infinity,
+                    child: ListView.builder(
+                        itemCount: model.entryList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return _buildListItem(context, index, model);
+                        }),
                   ),
-                ),
-              ),
-              Container(
-                child: Column(
-                  children: <Widget>[
-                    SizedBox(
-                      height: 110,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Center(
-                        child: FloatingActionButton(
-                          highlightElevation: 5,
-                          backgroundColor: Colors.white,
-                          elevation: 10,
-                          child: Icon(Icons.add, size: 50, color: secondary),
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(
-                                context, '/entrypage');
-                          },
-                        ),
+                  Container(
+                    height: 140,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: primary,
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(30),
+                            bottomRight: Radius.circular(30))),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          IconButton(
+                            onPressed: () =>
+                                _scaffoldKey.currentState.openDrawer(),
+                            icon: Icon(
+                              Icons.menu,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            "Entries",
+                            style: TextStyle(color: Colors.white, fontSize: 24),
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.filter_list,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              )
-            ],
+                  ),
+                  Container(
+                    child: Column(
+                      children: <Widget>[
+                        SizedBox(
+                          height: 110,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Center(
+                            child: FloatingActionButton(
+                              highlightElevation: 5,
+                              backgroundColor: Colors.white,
+                              elevation: 10,
+                              child:
+                                  Icon(Icons.add, size: 50, color: secondary),
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(
+                                    context, '/entrypage');
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              );
+            },
           ),
         ),
       ),
