@@ -245,8 +245,12 @@ class UserModel extends ConnectedModel {
     bool hasError = true;
     String message = 'Something went wrong';
     if (responseData.containsKey('idToken')) {
-      // hasError = false;
-      // message = 'Authentication succeeded';
+      if (mode == AuthMode.Signup) {
+        _isLoading = false;
+        notifyListeners();
+        message = 'Your Account request has been sent successfully.';
+        return {'success': !hasError, 'message': message};
+      }
       setAuthenticatedUser(
         token: responseData['idToken'],
         userId: responseData['localId'],
