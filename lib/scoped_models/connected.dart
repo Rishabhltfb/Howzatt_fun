@@ -138,6 +138,8 @@ class UserModel extends ConnectedModel {
         notifyListeners();
         return;
       }
+      _isLoading = false;
+      notifyListeners();
 
       userListData.forEach((String entryId, dynamic userData) {
         final User user = User(
@@ -151,8 +153,6 @@ class UserModel extends ConnectedModel {
         fetchedUserList.add(user);
       });
       _userList = fetchedUserList;
-      _isLoading = false;
-      notifyListeners();
     }).catchError((error) {
       _isLoading = false;
       notifyListeners();
@@ -161,8 +161,6 @@ class UserModel extends ConnectedModel {
   }
 
   Future<bool> addUserEntry(String email, String userId) async {
-    _isLoading = true;
-    notifyListeners();
     final Map<String, dynamic> userEntry = {
       'isAdmin': false,
       'isEnabled': false,
@@ -176,8 +174,6 @@ class UserModel extends ConnectedModel {
           body: json.encode(userEntry));
 
       if (response.statusCode != 200 && response.statusCode != 201) {
-        _isLoading = false;
-        notifyListeners();
         return false;
       }
 
@@ -190,12 +186,8 @@ class UserModel extends ConnectedModel {
         entryId: json.decode(response.body)['name'],
       );
       _userList.add(newUser);
-      _isLoading = false;
-      notifyListeners();
       return true;
     } catch (error) {
-      _isLoading = false;
-      notifyListeners();
       return false;
     }
   }
@@ -228,6 +220,8 @@ class UserModel extends ConnectedModel {
       'password': password,
       'returnSecureToken': true
     };
+    _isLoading = true;
+    notifyListeners();
     http.Response response;
     if (mode == AuthMode.Login) {
       response = await http.post(
@@ -240,20 +234,26 @@ class UserModel extends ConnectedModel {
           'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDlrjs7x7jXzLRBmQGdYoLmWkgSbdGKXzU',
           body: json.encode(authData),
           headers: {'Content-Type': 'application/json'});
-      await addUserEntry(email, json.decode(response.body)['localId']);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await addUserEntry(email, json.decode(response.body)['localId']);
+      }
     }
 
     final Map<String, dynamic> responseData = json.decode(response.body);
     bool hasError = true;
     String message = 'Something went wrong';
     if (responseData.containsKey('idToken')) {
-      hasError = false;
-      message = 'Authentication succeeded';
+      // hasError = false;
+      // message = 'Authentication succeeded';
       setAuthenticatedUser(
         token: responseData['idToken'],
         email: email,
         userId: responseData['localId'],
       );
+      _authenticatedUser.isEnabled ? hasError = false : hasError = true;
+      _authenticatedUser.isEnabled
+          ? message = 'Authentication succeeded'
+          : message = 'Admin has not Enabled your account yet.';
     } else if (responseData['error']['message'] == 'EMAIL_NOT_FOUND') {
       message = 'This email was not found';
     } else if (responseData['error']['message'] == 'INVALID_PASSWORD') {
@@ -261,11 +261,18 @@ class UserModel extends ConnectedModel {
     } else if (responseData['error']['message'] == 'EMAIL_EXISTS') {
       message = 'This email is already taken';
     }
-
+    _isLoading = false;
+    notifyListeners();
     return {'success': !hasError, 'message': message};
   }
 
   void logout() {
     _authenticatedUser = null;
+  }
+}
+
+class UtilityModel extends ConnectedModel {
+  bool get isLoading {
+    return _isLoading;
   }
 }

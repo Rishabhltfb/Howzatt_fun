@@ -7,6 +7,8 @@ import '../models/entry.dart';
 import '../widgets/logout.dart';
 
 class EntryPage extends StatefulWidget {
+  final MainModel model;
+  EntryPage(this.model);
   @override
   State<StatefulWidget> createState() {
     return _EntryPageState();
@@ -40,8 +42,10 @@ class _EntryPageState extends State<EntryPage> {
               Navigator.pushReplacementNamed(context, '/homepage');
             },
           ),
-          Divider(),
-          AdminListTile(),
+          widget.model.authenticatedUser.isAdmin ? Divider() : Container(),
+          widget.model.authenticatedUser.isAdmin
+              ? AdminListTile()
+              : Container(),
           Divider(),
           LogoutListTile(),
         ],
@@ -154,12 +158,21 @@ class _EntryPageState extends State<EntryPage> {
   }
 
   Widget _buildSubmitButton(MainModel model) {
-    return RaisedButton(
-      color: primary,
-      child: Text('Save'),
-      textColor: Colors.white,
-      onPressed: () {
-        _submitForm(model);
+    return ScopedModelDescendant<MainModel>(
+      builder: (BuildContext context, Widget child, MainModel) {
+        return model.isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : RaisedButton(
+                elevation: 20,
+                color: primary,
+                child: Text('Save'),
+                textColor: Colors.white,
+                onPressed: () {
+                  _submitForm(model);
+                },
+              );
       },
     );
   }

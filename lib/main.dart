@@ -32,9 +32,9 @@ class _MyAppState extends State<MyApp> {
           debugShowCheckedModeBanner: false,
           routes: {
             '/': (BuildContext context) => SplashPage(),
-            '/authpage': (BuildContext context) => AuthPage(),
+            '/authpage': (BuildContext context) => AuthPage(_model),
             '/homepage': (BuildContext context) => HomePage(_model),
-            '/entrypage': (BuildContext context) => EntryPage(),
+            '/entrypage': (BuildContext context) => EntryPage(_model),
             '/admin': (BuildContext context) => UserAdminPage(_model),
           },
         ));

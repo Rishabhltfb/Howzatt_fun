@@ -6,7 +6,7 @@ import '../scoped_models/main.dart';
 import '../widgets/logout.dart';
 
 class HomePage extends StatefulWidget {
-  MainModel model;
+  final MainModel model;
 
   HomePage(this.model);
 
@@ -104,10 +104,9 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Row(
                   children: <Widget>[
-                    Icon(
-                      Icons.attach_money,
-                      color: secondary,
-                      size: 20,
+                    Text(
+                      " \u20B9",
+                      style: TextStyle(color: secondary, fontSize: 20),
                     ),
                     SizedBox(
                       width: 5,
@@ -158,8 +157,10 @@ class _HomePageState extends State<HomePage> {
               Navigator.pushReplacementNamed(context, '/entrypage');
             },
           ),
-          Divider(),
-          AdminListTile(),
+          widget.model.authenticatedUser.isAdmin ? Divider() : Container(),
+          widget.model.authenticatedUser.isAdmin
+              ? AdminListTile()
+              : Container(),
           Divider(),
           LogoutListTile(),
         ],
@@ -219,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                           IconButton(
                             onPressed: () {},
                             icon: Icon(
-                              Icons.filter_list,
+                              Icons.person,
                               color: Colors.white,
                             ),
                           ),
@@ -240,8 +241,7 @@ class _HomePageState extends State<HomePage> {
                               highlightElevation: 5,
                               backgroundColor: Colors.white,
                               elevation: 10,
-                              child:
-                                  Icon(Icons.add, size: 50, color: secondary),
+                              child: Icon(Icons.add, size: 50, color: primary),
                               onPressed: () {
                                 Navigator.pushReplacementNamed(
                                     context, '/entrypage');

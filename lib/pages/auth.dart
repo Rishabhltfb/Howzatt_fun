@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 import '../models/auth.dart';
 import '../scoped_models/main.dart';
 
 class AuthPage extends StatefulWidget {
+  final MainModel model;
+  AuthPage(this.model);
   @override
   _AuthPageState createState() => _AuthPageState();
 }
 
 class _AuthPageState extends State<AuthPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final MainModel _model = MainModel();
   bool formVisible;
   AuthMode _authMode;
 
   @override
   void initState() {
     super.initState();
+    widget.model.fetchUsers();
     formVisible = false;
     _authMode = AuthMode.Login;
   }
@@ -29,76 +32,97 @@ class _AuthPageState extends State<AuthPage> {
     'password': null,
   };
 
-  Future<Null> _fetchAllUser() async {
-    await _model.fetchUsers();
-  }
-
   Widget _buildForm() {
     return Container(
-      margin: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      child: ListView(
-        shrinkWrap: true,
-        padding: const EdgeInsets.all(16.0),
-        children: <Widget>[
-          TextFormField(
-            decoration: InputDecoration(
-              hintText: "Enter email",
-              border: OutlineInputBorder(),
+        margin: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        child: ListView(
+          shrinkWrap: true,
+          padding: const EdgeInsets.all(16.0),
+          children: <Widget>[
+            TextFormField(
+              decoration: InputDecoration(
+                hintText: "Enter email",
+                border: OutlineInputBorder(),
+              ),
+              onSaved: (String value) {
+                _formData['email'] = value;
+              },
             ),
-            onSaved: (String value) {
-              _formData['email'] = value;
-            },
-          ),
-          const SizedBox(height: 10.0),
-          TextFormField(
-            obscureText: true,
-            decoration: InputDecoration(
-              hintText: "Enter password",
-              border: OutlineInputBorder(),
+            const SizedBox(height: 10.0),
+            TextFormField(
+              obscureText: true,
+              decoration: InputDecoration(
+                hintText: "Enter password",
+                border: OutlineInputBorder(),
+              ),
+              controller: _passwordTextController,
+              onSaved: (String value) {
+                _formData['password'] = value;
+              },
             ),
-            controller: _passwordTextController,
-            onSaved: (String value) {
-              _formData['password'] = value;
-            },
-          ),
-          _authMode == AuthMode.Login
-              ? Container()
-              : const SizedBox(height: 10.0),
-          _authMode == AuthMode.Login
-              ? Container()
-              : TextFormField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Confirm password",
-                    border: OutlineInputBorder(),
+            _authMode == AuthMode.Login
+                ? Container()
+                : const SizedBox(height: 10.0),
+            _authMode == AuthMode.Login
+                ? Container()
+                : TextFormField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintText: "Confirm password",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (String value) {
+                      if (_passwordTextController.text != value) {
+                        return 'Password do not match.';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (String value) {
-                    if (_passwordTextController.text != value) {
-                      return 'Password do not match.';
-                    }
-                    return null;
-                  },
-                ),
-          const SizedBox(height: 10.0),
-          RaisedButton(
-            color: Color(0xffdb002e),
-            textColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
+            const SizedBox(height: 10.0),
+            _authMode == AuthMode.Login
+                ? Container()
+                : const SizedBox(height: 10.0),
+            _authMode == AuthMode.Login
+                ? Container()
+                : TextFormField(
+                    decoration: InputDecoration(
+                      hintText: "UserName",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (String value) {
+                      if (_passwordTextController.text != value) {
+                        return 'Password do not match.';
+                      }
+                      return null;
+                    },
+                  ),
+            const SizedBox(height: 10.0),
+            RaisedButton(
+              color: Color(0xffdb002e),
+              textColor: Colors.white,
+              elevation: 10,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              child: ScopedModelDescendant(
+                builder: (BuildContext context, Widget child, MainModel model) {
+                  return model.isLoading
+                      ? Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : Text(_authMode == AuthMode.Login ? "Login" : "Signup");
+                },
+              ),
+              onPressed: () {
+                _submitForm();
+              },
             ),
-            child: Text(_authMode == AuthMode.Login ? "Login" : "Signup"),
-            onPressed: () {
-              _submitForm();
-            },
-          ),
-        ],
-      ),
-    );
+          ],
+        ));
   }
 
   void _submitForm() async {
@@ -107,8 +131,8 @@ class _AuthPageState extends State<AuthPage> {
     }
     _formKey.currentState.save();
     Map<String, dynamic> successInformation;
-    successInformation = await _model.authenticate(
-        _formData['email'], _formData['password'], _authMode);
+    successInformation = await widget.model
+        .authenticate(_formData['email'], _formData['password'], _authMode);
     if (successInformation['success']) {
       Navigator.pushReplacementNamed(context, '/homepage');
     } else {
@@ -186,7 +210,6 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         child: Text("Login"),
                         onPressed: () {
-                          _fetchAllUser();
                           setState(() {
                             formVisible = true;
                             _authMode = AuthMode.Login;
@@ -205,7 +228,6 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         child: Text("Signup"),
                         onPressed: () {
-                          _fetchAllUser();
                           setState(() {
                             formVisible = true;
                             _authMode = AuthMode.Signup;
