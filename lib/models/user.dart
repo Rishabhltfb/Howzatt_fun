@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 class User {
+  String username;
   bool isAdmin;
   bool isEnabled;
   String token;
@@ -9,6 +10,7 @@ class User {
   String entryId;
 
   User({
+    @required this.username,
     @required this.isAdmin,
     @required this.isEnabled,
     @required this.token,

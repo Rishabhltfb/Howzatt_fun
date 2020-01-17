@@ -57,7 +57,7 @@ class _UserListPageState extends State<UserListPage> {
                           leading: CircleAvatar(
                             backgroundImage: AssetImage('assets/user.jpg'),
                           ),
-                          title: Text(model.userList[index].userEmail),
+                          title: Text(model.userList[index].username),
                           subtitle: Text(model.userList[index].isEnabled
                               ? 'Enabled'
                               : 'Not Enabled'),

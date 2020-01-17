@@ -59,7 +59,7 @@ class _UserRequestPageState extends State<UserRequestPage> {
                           leading: CircleAvatar(
                             backgroundImage: AssetImage('assets/user.jpg'),
                           ),
-                          title: Text(model.disabledUsers[index].userEmail),
+                          title: Text(model.disabledUsers[index].username),
                           subtitle: Text(model.disabledUsers[index].isEnabled
                               ? 'Enabled'
                               : 'Not Enabled'),

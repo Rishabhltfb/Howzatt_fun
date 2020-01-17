@@ -30,6 +30,7 @@ class _AuthPageState extends State<AuthPage> {
   final Map<String, dynamic> _formData = {
     'email': null,
     'password': null,
+    'username': null,
   };
 
   Widget _buildForm() {
@@ -90,14 +91,17 @@ class _AuthPageState extends State<AuthPage> {
                 ? Container()
                 : TextFormField(
                     decoration: InputDecoration(
-                      hintText: "UserName",
+                      hintText: "User Name",
                       border: OutlineInputBorder(),
                     ),
                     validator: (String value) {
-                      if (_passwordTextController.text != value) {
-                        return 'Password do not match.';
+                      if (value.isEmpty) {
+                        return 'Username can not be left empty.';
                       }
                       return null;
+                    },
+                    onSaved: (String value) {
+                      _formData['username'] = value;
                     },
                   ),
             const SizedBox(height: 10.0),
@@ -131,8 +135,8 @@ class _AuthPageState extends State<AuthPage> {
     }
     _formKey.currentState.save();
     Map<String, dynamic> successInformation;
-    successInformation = await widget.model
-        .authenticate(_formData['email'], _formData['password'], _authMode);
+    successInformation = await widget.model.authenticate(_formData['email'],
+        _formData['password'], _formData['username'], _authMode);
     if (successInformation['success']) {
       Navigator.pushReplacementNamed(context, '/homepage');
     } else {

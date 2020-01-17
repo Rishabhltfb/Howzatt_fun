@@ -129,7 +129,6 @@ class _EntryPageState extends State<EntryPage> {
       name: _formData['name'],
       contact: _formData['contact'],
       price: _formData['price'],
-      userId: 'Verified By ...',
       overs: _formData['overs'],
     )
         .then(

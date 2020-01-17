@@ -40,7 +40,7 @@ class EntryModel extends ConnectedModel {
           contact: entryData['contact'],
           price: entryData['price'],
           overs: entryData['overs'],
-          userId: entryData['userId'],
+          entryCreator: entryData['entryCreator'],
         );
         fetchedEntryList.add(entry);
       });
@@ -55,19 +55,15 @@ class EntryModel extends ConnectedModel {
   }
 
   Future<bool> addEntry(
-      {String name,
-      String contact,
-      String userId,
-      double price,
-      double overs}) async {
+      {String name, String contact, double price, double overs}) async {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> entryData = {
       'name': name,
       'contact': contact,
-      'userId': userId,
       'price': price,
       'overs': overs,
+      'entryCreator': _authenticatedUser.username,
     };
     try {
       final http.Response response = await http.post(
@@ -86,7 +82,7 @@ class EntryModel extends ConnectedModel {
         contact: contact,
         price: price,
         overs: overs,
-        userId: userId,
+        entryCreator: _authenticatedUser.username,
       );
       _entryList.add(newEntry);
       _isLoading = false;
@@ -117,7 +113,7 @@ class UserModel extends ConnectedModel {
     return _userList.where((User user) => !user.isEnabled).toList();
   }
 
-  void setAuthenticatedUser({String token, String email, String userId}) {
+  void setAuthenticatedUser({String token, String userId}) {
     User currentUser = _userList.firstWhere((User user) {
       return user.userId == userId;
     });
@@ -143,6 +139,7 @@ class UserModel extends ConnectedModel {
 
       userListData.forEach((String entryId, dynamic userData) {
         final User user = User(
+          username: userData['username'],
           entryId: entryId,
           isAdmin: userData['isAdmin'],
           isEnabled: userData['isEnabled'],
@@ -160,8 +157,10 @@ class UserModel extends ConnectedModel {
     });
   }
 
-  Future<bool> addUserEntry(String email, String userId) async {
+  Future<bool> addUserEntry(
+      String email, String userId, String username) async {
     final Map<String, dynamic> userEntry = {
+      'username': username,
       'isAdmin': false,
       'isEnabled': false,
       'userId': userId,
@@ -178,6 +177,7 @@ class UserModel extends ConnectedModel {
       }
 
       final User newUser = User(
+        username: username,
         isAdmin: false,
         isEnabled: false,
         userEmail: email,
@@ -213,7 +213,8 @@ class UserModel extends ConnectedModel {
     });
   }
 
-  Future<Map<String, dynamic>> authenticate(String email, String password,
+  Future<Map<String, dynamic>> authenticate(
+      String email, String password, String username,
       [AuthMode mode = AuthMode.Login]) async {
     final Map<String, dynamic> authData = {
       'email': email,
@@ -235,7 +236,8 @@ class UserModel extends ConnectedModel {
           body: json.encode(authData),
           headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await addUserEntry(email, json.decode(response.body)['localId']);
+        await addUserEntry(
+            email, json.decode(response.body)['localId'], username);
       }
     }
 
@@ -247,7 +249,6 @@ class UserModel extends ConnectedModel {
       // message = 'Authentication succeeded';
       setAuthenticatedUser(
         token: responseData['idToken'],
-        email: email,
         userId: responseData['localId'],
       );
       _authenticatedUser.isEnabled ? hasError = false : hasError = true;

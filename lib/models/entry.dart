@@ -6,7 +6,7 @@ class Entry {
   final String contact;
   final double price;
   final double overs;
-  final String userId;
+  final String entryCreator;
 
   Entry({
     @required this.id,
@@ -14,6 +14,6 @@ class Entry {
     @required this.contact,
     @required this.price,
     @required this.overs,
-    @required this.userId,
+    @required this.entryCreator,
   });
 }

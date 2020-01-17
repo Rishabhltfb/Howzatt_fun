@@ -129,7 +129,7 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(model.entryList[index].userId,
+                    Text(model.entryList[index].entryCreator,
                         style: TextStyle(
                             color: primary, fontSize: 13, letterSpacing: .3)),
                   ],
