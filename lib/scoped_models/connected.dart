@@ -168,7 +168,7 @@ class UserModel extends ConnectedModel {
   }
 
   Future<bool> addUserEntry(
-      String email, String userId, String username) async {
+      String email, String userId, String username, String token) async {
     final Map<String, dynamic> userEntry = {
       'username': username,
       'isAdmin': false,
@@ -179,7 +179,7 @@ class UserModel extends ConnectedModel {
 
     try {
       final http.Response response = await http.post(
-          'https://howzatt-fun.firebaseio.com/users.json?auth=${_authenticatedUser.token}',
+          'https://howzatt-fun.firebaseio.com/users.json?auth=${token}',
           body: json.encode(userEntry));
 
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -247,24 +247,32 @@ class UserModel extends ConnectedModel {
           body: json.encode(authData),
           headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await addUserEntry(
-            email, json.decode(response.body)['localId'], username);
+        await addUserEntry(email, json.decode(response.body)['localId'],
+            username, json.decode(response.body)['idToken']);
       }
     }
 
     final Map<String, dynamic> responseData = json.decode(response.body);
     bool hasError = true;
     String message = 'Something went wrong';
-    setAuthTimeout(int.parse(responseData['expiresIn']));
-    _userSubject.add(true);
-    final DateTime now = DateTime.now();
-    final DateTime expiryTime =
-        now.add(Duration(seconds: int.parse(responseData['expiresIn'])));
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('token', responseData['idToken']);
-    prefs.setString('userEmail', email);
-    prefs.setString('userId', responseData['localId']);
-    prefs.setString('expiryTime', expiryTime.toIso8601String());
+    setAuthenticatedUser(
+      token: responseData['idToken'],
+      userId: responseData['localId'],
+    );
+    if (mode == AuthMode.Login &&
+        !responseData.containsKey('error') &&
+        _authenticatedUser.isEnabled) {
+      setAuthTimeout(int.parse(responseData['expiresIn']));
+      _userSubject.add(true);
+      final DateTime now = DateTime.now();
+      final DateTime expiryTime =
+          now.add(Duration(seconds: int.parse(responseData['expiresIn'])));
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', responseData['idToken']);
+      prefs.setString('userEmail', email);
+      prefs.setString('userId', responseData['localId']);
+      prefs.setString('expiryTime', expiryTime.toIso8601String());
+    }
     if (responseData.containsKey('idToken')) {
       if (mode == AuthMode.Signup) {
         _isLoading = false;
@@ -280,6 +288,9 @@ class UserModel extends ConnectedModel {
       _authenticatedUser.isEnabled
           ? message = 'Authentication succeeded'
           : message = 'Admin has not Enabled your account yet.';
+      _authenticatedUser.isEnabled
+          ? _userSubject.add(true)
+          : _userSubject.add(false);
     } else if (responseData['error']['message'] == 'EMAIL_NOT_FOUND') {
       message = 'This email was not found';
     } else if (responseData['error']['message'] == 'INVALID_PASSWORD') {
@@ -311,7 +322,7 @@ class UserModel extends ConnectedModel {
         notifyListeners();
         return;
       }
-      // final String userEmail = prefs.getString('userEmail');
+      final String userEmail = prefs.getString('userEmail');
       final String userId = prefs.getString('userId');
       final int tokenLifespan = parsedExpiryTime.difference(now).inSeconds;
       await fetchUsers();

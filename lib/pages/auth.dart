@@ -154,6 +154,7 @@ class _AuthPageState extends State<AuthPage> {
                 child: Text('Okay'),
                 onPressed: () {
                   Navigator.of(context).pop();
+                  Navigator.pushReplacementNamed(context, '/homepage');
                 },
               )
             ],
