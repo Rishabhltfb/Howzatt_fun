@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rxdart/subjects.dart';
 
 import '../models/auth.dart';
 import '../models/entry.dart';
@@ -23,7 +25,8 @@ class EntryModel extends ConnectedModel {
     _isLoading = true;
     notifyListeners();
     return await http
-        .get('https://howzatt-fun.firebaseio.com/entries.json')
+        .get(
+            'https://howzatt-fun.firebaseio.com/entries.json?auth=${_authenticatedUser.token}')
         .then<Null>((http.Response response) {
       final List<Entry> fetchedEntryList = [];
       final Map<String, dynamic> entryListData = json.decode(response.body);
@@ -67,7 +70,7 @@ class EntryModel extends ConnectedModel {
     };
     try {
       final http.Response response = await http.post(
-          'https://howzatt-fun.firebaseio.com/entries.json',
+          'https://howzatt-fun.firebaseio.com/entries.json?auth=${_authenticatedUser.token}',
           body: json.encode(entryData));
 
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -97,6 +100,13 @@ class EntryModel extends ConnectedModel {
 }
 
 class UserModel extends ConnectedModel {
+  Timer _authTimer;
+  PublishSubject<bool> _userSubject = PublishSubject();
+
+  PublishSubject<bool> get userSubject {
+    return _userSubject;
+  }
+
   User get authenticatedUser {
     return _authenticatedUser;
   }
@@ -169,7 +179,7 @@ class UserModel extends ConnectedModel {
 
     try {
       final http.Response response = await http.post(
-          'https://howzatt-fun.firebaseio.com/users.json',
+          'https://howzatt-fun.firebaseio.com/users.json?auth=${_authenticatedUser.token}',
           body: json.encode(userEntry));
 
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -199,7 +209,8 @@ class UserModel extends ConnectedModel {
       'isEnabled': true,
     };
     return http
-        .patch('https://howzatt-fun.firebaseio.com/users/${entryId}.json',
+        .patch(
+            'https://howzatt-fun.firebaseio.com/users/${entryId}.json?auth=${_authenticatedUser.token}',
             body: json.encode(updateData))
         .then((http.Response response) {
       _isLoading = false;
@@ -244,6 +255,16 @@ class UserModel extends ConnectedModel {
     final Map<String, dynamic> responseData = json.decode(response.body);
     bool hasError = true;
     String message = 'Something went wrong';
+    setAuthTimeout(int.parse(responseData['expiresIn']));
+    _userSubject.add(true);
+    final DateTime now = DateTime.now();
+    final DateTime expiryTime =
+        now.add(Duration(seconds: int.parse(responseData['expiresIn'])));
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('token', responseData['idToken']);
+    prefs.setString('userEmail', email);
+    prefs.setString('userId', responseData['localId']);
+    prefs.setString('expiryTime', expiryTime.toIso8601String());
     if (responseData.containsKey('idToken')) {
       if (mode == AuthMode.Signup) {
         _isLoading = false;
@@ -271,8 +292,44 @@ class UserModel extends ConnectedModel {
     return {'success': !hasError, 'message': message};
   }
 
-  void logout() {
+  void setAuthTimeout(int time) {
+    _authTimer = Timer(Duration(seconds: time), logout);
+  }
+
+  void autoAuthenticate() async {
+    _isLoading = true;
+    notifyListeners();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String token = prefs.getString('token');
+    final String expiryTimeString = prefs.getString('expiryTime');
+    if (token != null) {
+      final DateTime now = DateTime.now();
+      final parsedExpiryTime = DateTime.parse(expiryTimeString);
+      if (parsedExpiryTime.isBefore(now)) {
+        _authenticatedUser = null;
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+      // final String userEmail = prefs.getString('userEmail');
+      final String userId = prefs.getString('userId');
+      final int tokenLifespan = parsedExpiryTime.difference(now).inSeconds;
+      await fetchUsers();
+      setAuthenticatedUser(token: token, userId: userId);
+      _userSubject.add(true);
+      setAuthTimeout(tokenLifespan);
+      notifyListeners();
+    }
+  }
+
+  void logout() async {
     _authenticatedUser = null;
+    _authTimer.cancel();
+    _userSubject.add(false);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('token');
+    prefs.remove('userEmail');
+    prefs.remove('userId');
   }
 }
 

@@ -29,6 +29,12 @@ class _HomePageState extends State<HomePage> {
   Widget _buildListItem(BuildContext context, int index, MainModel model) {
     return Container(
       decoration: BoxDecoration(
+        boxShadow: [
+          new BoxShadow(
+            blurRadius: 5.0,
+            color: Colors.blueGrey,
+          )
+        ],
         borderRadius: BorderRadius.circular(25),
         color: Colors.white,
       ),
@@ -196,6 +202,12 @@ class _HomePageState extends State<HomePage> {
                     height: 140,
                     width: double.infinity,
                     decoration: BoxDecoration(
+                        boxShadow: [
+                          new BoxShadow(
+                            color: Colors.blueGrey,
+                            blurRadius: 10.0,
+                          )
+                        ],
                         color: primary,
                         borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(30),

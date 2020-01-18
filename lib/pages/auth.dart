@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../models/auth.dart';
@@ -109,6 +108,7 @@ class _AuthPageState extends State<AuthPage> {
               color: Color(0xffdb002e),
               textColor: Colors.white,
               elevation: 10,
+              padding: const EdgeInsets.all(10.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
               ),
@@ -245,19 +245,7 @@ class _AuthPageState extends State<AuthPage> {
                     const SizedBox(width: 10.0),
                   ],
                 ),
-                const SizedBox(height: 40.0),
-                OutlineButton.icon(
-                  borderSide: BorderSide(color: Color(0xffdb002e)),
-                  color: Color(0xffdb002e),
-                  textColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                  icon: Icon(FontAwesomeIcons.user),
-                  label: Text("Login as Admin"),
-                  onPressed: () {},
-                ),
-                const SizedBox(height: 20.0),
+                const SizedBox(height: 60.0),
               ],
             ),
           ),
