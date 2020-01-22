@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rxdart/subjects.dart';
 
+import '../api/keys.dart';
 import '../models/auth.dart';
 import '../models/entry.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -100,6 +101,7 @@ class EntryModel extends ConnectedModel {
 }
 
 class UserModel extends ConnectedModel {
+  final key = ApiKeys.apiKey;
   Timer _authTimer;
   PublishSubject<bool> _userSubject = PublishSubject();
 
@@ -237,13 +239,13 @@ class UserModel extends ConnectedModel {
     http.Response response;
     if (mode == AuthMode.Login) {
       response = await http.post(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDlrjs7x7jXzLRBmQGdYoLmWkgSbdGKXzU',
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${key}',
         body: json.encode(authData),
         headers: {'Content-Type': 'application/json'},
       );
     } else {
       response = await http.post(
-          'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDlrjs7x7jXzLRBmQGdYoLmWkgSbdGKXzU',
+          'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${key}',
           body: json.encode(authData),
           headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -322,7 +324,6 @@ class UserModel extends ConnectedModel {
         notifyListeners();
         return;
       }
-      final String userEmail = prefs.getString('userEmail');
       final String userId = prefs.getString('userId');
       final int tokenLifespan = parsedExpiryTime.difference(now).inSeconds;
       await fetchUsers();
