@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:intl/intl.dart';
 
 import '../api/keys.dart';
 import '../models/auth.dart';
@@ -44,6 +45,7 @@ class EntryModel extends ConnectedModel {
           contact: entryData['contact'],
           price: entryData['price'],
           overs: entryData['overs'],
+          datetime: entryData['datetime'],
           entryCreator: entryData['entryCreator'],
         );
         fetchedEntryList.add(entry);
@@ -62,11 +64,15 @@ class EntryModel extends ConnectedModel {
       {String name, String contact, double price, double overs}) async {
     _isLoading = true;
     notifyListeners();
+    final DateTime now = DateTime.now();
+    String formattedDate = DateFormat('kk:mm ,  EEE d MMM').format(now);
+
     final Map<String, dynamic> entryData = {
       'name': name,
       'contact': contact,
       'price': price,
       'overs': overs,
+      'datetime': formattedDate,
       'entryCreator': _authenticatedUser.username,
     };
     try {
@@ -86,6 +92,7 @@ class EntryModel extends ConnectedModel {
         contact: contact,
         price: price,
         overs: overs,
+        datetime: formattedDate,
         entryCreator: _authenticatedUser.username,
       );
       _entryList.add(newEntry);
@@ -226,6 +233,28 @@ class UserModel extends ConnectedModel {
     });
   }
 
+  Future<bool> disableUser(String entryId) {
+    _isLoading = true;
+    notifyListeners();
+    final Map<String, dynamic> updateData = {
+      'isEnabled': false,
+    };
+    return http
+        .patch(
+            'https://howzatt-fun.firebaseio.com/users/${entryId}.json?auth=${_authenticatedUser.token}',
+            body: json.encode(updateData))
+        .then((http.Response response) {
+      _isLoading = false;
+      fetchUsers();
+      notifyListeners();
+      return true;
+    }).catchError((error) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    });
+  }
+
   Future<Map<String, dynamic>> authenticate(
       String email, String password, String username,
       [AuthMode mode = AuthMode.Login]) async {
@@ -257,16 +286,19 @@ class UserModel extends ConnectedModel {
     final Map<String, dynamic> responseData = json.decode(response.body);
     bool hasError = true;
     String message = 'Something went wrong';
-    setAuthenticatedUser(
-      token: responseData['idToken'],
-      userId: responseData['localId'],
-    );
+    if (responseData.containsKey('idToken')) {
+      setAuthenticatedUser(
+        token: responseData['idToken'],
+        userId: responseData['localId'],
+      );
+    }
     if (mode == AuthMode.Login &&
         !responseData.containsKey('error') &&
         _authenticatedUser.isEnabled) {
       setAuthTimeout(int.parse(responseData['expiresIn']));
       _userSubject.add(true);
       final DateTime now = DateTime.now();
+      // String formattedDate = DateFormat('kk:mm EEE d MMM').format(now);
       final DateTime expiryTime =
           now.add(Duration(seconds: int.parse(responseData['expiresIn'])));
       final SharedPreferences prefs = await SharedPreferences.getInstance();

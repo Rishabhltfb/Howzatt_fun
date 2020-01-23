@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
         color: Colors.white,
       ),
       width: double.infinity,
-      height: 160,
+      height: 195,
       margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: Row(
@@ -118,6 +118,24 @@ class _HomePageState extends State<HomePage> {
                       width: 5,
                     ),
                     Text(model.entryList[index].price.toString(),
+                        style: TextStyle(
+                            color: primary, fontSize: 13, letterSpacing: .3)),
+                  ],
+                ),
+                SizedBox(
+                  height: 7,
+                ),
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.access_time,
+                      color: secondary,
+                      size: 20,
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(model.entryList[index].datetime,
                         style: TextStyle(
                             color: primary, fontSize: 13, letterSpacing: .3)),
                   ],
@@ -232,8 +250,8 @@ class _HomePageState extends State<HomePage> {
                           IconButton(
                             onPressed: () {},
                             icon: Icon(
-                              Icons.person,
-                              color: Colors.white,
+                              Icons.menu,
+                              color: primary,
                             ),
                           ),
                         ],

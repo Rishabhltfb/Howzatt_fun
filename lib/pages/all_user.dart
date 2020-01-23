@@ -21,10 +21,37 @@ class _UserListPageState extends State<UserListPage> {
     super.initState();
   }
 
+  void updateUser(String entryId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ScopedModelDescendant<MainModel>(
+          builder: (BuildContext context, Widget child, MainModel model) {
+            return AlertDialog(
+              title: Text('Update Account'),
+              content: Text('Do you want to disable this account?'),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Okay'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    model.disableUser(entryId);
+                  },
+                )
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildEditButton(BuildContext context, int index, MainModel model) {
     return IconButton(
       icon: Icon(Icons.edit),
-      onPressed: () {},
+      onPressed: () {
+        updateUser(model.userList[index].entryId);
+      },
     );
   }
 

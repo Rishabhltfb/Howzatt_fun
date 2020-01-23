@@ -6,6 +6,7 @@ class Entry {
   final String contact;
   final double price;
   final double overs;
+  final String datetime;
   final String entryCreator;
 
   Entry({
@@ -14,6 +15,7 @@ class Entry {
     @required this.contact,
     @required this.price,
     @required this.overs,
+    @required this.datetime,
     @required this.entryCreator,
   });
 }
