@@ -32,12 +32,28 @@ class _UserListPageState extends State<UserListPage> {
               content: Text('Do you want to disable this account?'),
               actions: <Widget>[
                 FlatButton(
-                  child: Text('Okay'),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Colors.green,
+                    ),
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                     model.disableUser(entryId);
                   },
-                )
+                ),
+                FlatButton(
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ],
             );
           },
@@ -48,7 +64,7 @@ class _UserListPageState extends State<UserListPage> {
 
   Widget _buildEditButton(BuildContext context, int index, MainModel model) {
     return IconButton(
-      icon: Icon(Icons.edit),
+      icon: Icon(Icons.delete),
       onPressed: () {
         updateUser(model.userList[index].entryId);
       },

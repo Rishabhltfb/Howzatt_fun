@@ -14,7 +14,8 @@ class AdminListTile extends StatelessWidget {
                 leading: Icon(Icons.verified_user),
                 title: Text('Admin'),
                 onTap: () {
-                  Navigator.of(context).pushReplacementNamed('/admin');
+                  Navigator.pop(context);
+                  Navigator.of(context).pushNamed('/admin');
                 },
               );
       },

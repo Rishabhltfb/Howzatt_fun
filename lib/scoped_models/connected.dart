@@ -311,7 +311,7 @@ class UserModel extends ConnectedModel {
       if (mode == AuthMode.Signup) {
         _isLoading = false;
         notifyListeners();
-        message = 'Your Account request has been sent successfully.';
+        message = 'Your account request has been sent successfully.';
         return {'success': !hasError, 'message': message};
       }
       setAuthenticatedUser(
@@ -321,7 +321,7 @@ class UserModel extends ConnectedModel {
       _authenticatedUser.isEnabled ? hasError = false : hasError = true;
       _authenticatedUser.isEnabled
           ? message = 'Authentication succeeded'
-          : message = 'Admin has not Enabled your account yet.';
+          : message = 'Admin has not enabled your account yet.';
       _authenticatedUser.isEnabled
           ? _userSubject.add(true)
           : _userSubject.add(false);
