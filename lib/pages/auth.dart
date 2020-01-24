@@ -145,13 +145,13 @@ class _AuthPageState extends State<AuthPage> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(successInformation['message'] !=
-                    'Your Account request has been sent successfully.'
-                ? 'An error has Occurred'
+                    'Your account request has been sent successfully.'
+                ? 'An error has occurred'
                 : 'Message'),
             content: Text(successInformation['message']),
             actions: <Widget>[
               FlatButton(
-                child: Text('Okay'),
+                child: Text('OK'),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.pushReplacementNamed(context, '/homepage');

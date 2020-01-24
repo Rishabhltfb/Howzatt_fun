@@ -145,7 +145,7 @@ class _EntryPageState extends State<EntryPage> {
                 actions: <Widget>[
                   FlatButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text('Okay'),
+                    child: Text('OK'),
                   )
                 ],
               );

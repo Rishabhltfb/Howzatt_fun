@@ -178,7 +178,8 @@ class _HomePageState extends State<HomePage> {
             leading: Icon(Icons.edit),
             title: Text('Add Entry'),
             onTap: () {
-              Navigator.pushReplacementNamed(context, '/entrypage');
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/entrypage');
             },
           ),
           widget.model.authenticatedUser.isAdmin ? Divider() : Container(),
@@ -273,8 +274,8 @@ class _HomePageState extends State<HomePage> {
                               elevation: 10,
                               child: Icon(Icons.add, size: 50, color: primary),
                               onPressed: () {
-                                Navigator.pushReplacementNamed(
-                                    context, '/entrypage');
+                                Navigator.pop(context);
+                                Navigator.pushNamed(context, '/entrypage');
                               },
                             ),
                           ),

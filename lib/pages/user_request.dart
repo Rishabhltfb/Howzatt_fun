@@ -23,7 +23,8 @@ class _UserRequestPageState extends State<UserRequestPage> {
 
   Widget _buildEditButton(BuildContext context, int index, MainModel model) {
     return IconButton(
-      icon: Icon(Icons.done),
+      icon: Icon(Icons.done,
+      color: Colors.black,),
       onPressed: () {
         model.enableUser(model.disabledUsers[index].entryId);
       },
