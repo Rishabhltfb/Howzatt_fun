@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:howzatt_fun/pages/auth.dart';
-import 'package:howzatt_fun/pages/entry.dart';
-
-import 'package:howzatt_fun/pages/homepage.dart';
-import 'package:howzatt_fun/pages/splash.dart';
-import 'package:howzatt_fun/pages/user_admin.dart';
+import 'package:howzatt_fun/screens/auth_screen.dart';
+import 'package:howzatt_fun/screens/entry_screen.dart';
+import 'package:howzatt_fun/screens/home_screen.dart';
+import 'package:howzatt_fun/screens/splash_screen.dart';
+import 'package:howzatt_fun/screens/user_admin_screen.dart';
 import 'package:howzatt_fun/scoped_models/main.dart';
 import 'package:scoped_model/scoped_model.dart';
 
