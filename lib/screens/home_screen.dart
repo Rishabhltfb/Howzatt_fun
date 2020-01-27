@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:howzatt_fun/helpers/dimensions.dart';
 import 'package:howzatt_fun/widgets/admin.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -208,7 +209,8 @@ class _HomePageState extends State<HomePage> {
               return Stack(
                 children: <Widget>[
                   Container(
-                    padding: EdgeInsets.only(top: 145),
+                    padding:
+                        EdgeInsets.only(top: getViewportHeight(context) * 0.175),
                     height: MediaQuery.of(context).size.height,
                     width: double.infinity,
                     child: ListView.builder(
@@ -218,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                         }),
                   ),
                   Container(
-                    height: 140,
+                    height: getViewportHeight(context) * 0.168,
                     width: double.infinity,
                     decoration: BoxDecoration(
                         boxShadow: [
@@ -232,11 +234,13 @@ class _HomePageState extends State<HomePage> {
                             bottomLeft: Radius.circular(30),
                             bottomRight: Radius.circular(30))),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: getViewportWidth(context) * 0.05),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           IconButton(
+                            splashColor: Colors.red,
                             onPressed: () =>
                                 _scaffoldKey.currentState.openDrawer(),
                             icon: Icon(
@@ -246,7 +250,11 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Text(
                             "Entries",
-                            style: TextStyle(color: Colors.white, fontSize: 24),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: getViewportHeight(context) * 0.04,
+                              fontFamily: "Ubuntu",
+                            ),
                           ),
                           IconButton(
                             onPressed: () {},
@@ -263,21 +271,20 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       children: <Widget>[
                         SizedBox(
-                          height: 110,
+                          height: getViewportHeight(context) * 0.13,
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Center(
-                            child: FloatingActionButton(
-                              highlightElevation: 5,
-                              backgroundColor: Colors.white,
-                              elevation: 10,
-                              child: Icon(Icons.add, size: 50, color: primary),
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.pushNamed(context, '/entrypage');
-                              },
-                            ),
+                        Center(
+                          child: FloatingActionButton(
+                            splashColor: Colors.red,
+                            backgroundColor: Colors.white,
+                            elevation: 5,
+                            child: Icon(Icons.add,
+                                size: getViewportHeight(context) * 0.05,
+                                color: primary),
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(context, '/entrypage');
+                            },
                           ),
                         ),
                       ],

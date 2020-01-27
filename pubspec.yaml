@@ -60,6 +60,17 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
+  fonts:
+    - family: Raleway
+      fonts:
+        - asset: assets/fonts/Raleway.ttf
+    - family: Ubuntu
+      fonts:
+        - asset: assets/fonts/Ubuntu.ttf
+     
+    - family: FlutterIcon
+      fonts:
+        - asset: assets/fonts/FlutterIcon.ttf
   # fonts:
   #   - family: Schyler
   #     fonts:

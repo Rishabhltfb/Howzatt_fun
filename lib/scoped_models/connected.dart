@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../api/keys.dart';
 import '../models/auth.dart';
-import '../models/entry.dart';
+import '../models/entry_model.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
@@ -65,7 +65,7 @@ class EntryModel extends ConnectedModel {
     _isLoading = true;
     notifyListeners();
     final DateTime now = DateTime.now();
-    String formattedDate = DateFormat('kk:mm ,  EEE d MMM').format(now);
+    String formattedDate = DateFormat('hh:mm a ,  EEE d MMM').format(now);
 
     final Map<String, dynamic> entryData = {
       'name': name,

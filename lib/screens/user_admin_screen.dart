@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:howzatt_fun/pages/all_user.dart';
-import 'package:howzatt_fun/pages/user_request.dart';
+import 'package:howzatt_fun/screens/all_users_screen.dart';
+import 'package:howzatt_fun/screens/user_request_screen.dart';
 
 import '../scoped_models/main.dart';
 import '../widgets/logout.dart';
