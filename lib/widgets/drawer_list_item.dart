@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:howzatt_fun/helpers/dimensions.dart';
 
 class DrawerListItem extends StatelessWidget {
   final String tileName;
@@ -14,18 +15,31 @@ class DrawerListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(
-        tileIcon,
-      ),
-      dense: true,
-      title: Text(
-        tileName,
-      ),
-      selected: isSelected,
-      onTap: () {
-        Navigator.pushReplacementNamed(context, routeName);
-      },
-    );
+    return FlatButton(
+        onPressed: () {
+          Navigator.pushReplacementNamed(context, routeName);
+        },
+        splashColor: Colors.red,
+        child: Container(
+            alignment: Alignment.center,
+            height: getViewportHeight(context) * 0.05,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  tileIcon,
+                  color: isSelected ? Colors.red : Colors.black,
+                ),
+                SizedBox(
+                  width: getViewportWidth(context) * 0.04,
+                ),
+                Text(
+                  tileName,
+                  style:
+                      TextStyle(color: isSelected ? Colors.red : Colors.black),
+                ),
+              ],
+            )));
   }
 }

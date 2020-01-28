@@ -13,10 +13,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
   @override
   void initState() {
     WidgetsBinding.instance.renderView.automaticSystemUiAdjustment = false;
-    widget.model.fetchEntries();
+    Future.delayed(Duration.zero, () {
+      _refreshIndicatorKey.currentState.show();
+    });
     super.initState();
   }
 
@@ -171,101 +175,108 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Color(0xfff0f0f0),
-      drawer: SideDrawer(model: widget.model,selectedIndex: 1,),
-      body: SingleChildScrollView(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: ScopedModelDescendant(
-            builder: (BuildContext context, Widget child, MainModel model) {
-              return Stack(
-                children: <Widget>[
-                  Container(
+      drawer: SideDrawer(
+        model: widget.model,
+        selectedIndex: 1,
+      ),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: ScopedModelDescendant(
+          builder: (BuildContext context, Widget child, MainModel model) {
+            return Stack(
+              children: <Widget>[
+                Container(
                     padding: EdgeInsets.only(
                         top: getViewportHeight(context) * 0.175),
                     height: MediaQuery.of(context).size.height,
                     width: double.infinity,
-                    child: ListView.builder(
-                        itemCount: model.entryList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return _buildListItem(context, index, model);
-                        }),
-                  ),
-                  Container(
-                    height: getViewportHeight(context) * 0.168,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        boxShadow: [
-                          new BoxShadow(
-                            color: Colors.blueGrey,
-                            blurRadius: 10.0,
-                          )
-                        ],
-                        color: primary,
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(30),
-                            bottomRight: Radius.circular(30))),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: getViewportWidth(context) * 0.05),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          IconButton(
-                            splashColor: Colors.red,
-                            onPressed: () =>
-                                _scaffoldKey.currentState.openDrawer(),
-                            icon: Icon(
-                              Icons.menu,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            "Entries",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: getViewportHeight(context) * 0.04,
-                              fontFamily: "Ubuntu",
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.menu,
-                              color: primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    child: Column(
+                    child: RefreshIndicator(
+                      key: _refreshIndicatorKey,
+                      color: Colors.red,
+                      onRefresh: () async {
+                        await widget.model.fetchEntries();
+                      },
+                      child: ListView.builder(
+                          itemCount: model.entryList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return _buildListItem(context, index, model);
+                          }),
+                    )),
+                Container(
+                  height: getViewportHeight(context) * 0.168,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      boxShadow: [
+                        new BoxShadow(
+                          color: Colors.blueGrey,
+                          blurRadius: 10.0,
+                        )
+                      ],
+                      color: primary,
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30))),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: getViewportWidth(context) * 0.05),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        SizedBox(
-                          height: getViewportHeight(context) * 0.13,
+                        IconButton(
+                          splashColor: Colors.red,
+                          onPressed: () =>
+                              _scaffoldKey.currentState.openDrawer(),
+                          icon: Icon(
+                            Icons.menu,
+                            color: Colors.white,
+                          ),
                         ),
-                        Center(
-                          child: FloatingActionButton(
-                            splashColor: Colors.red,
-                            backgroundColor: Colors.white,
-                            elevation: 5,
-                            child: Icon(Icons.add,
-                                size: getViewportHeight(context) * 0.05,
-                                color: primary),
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.pushNamed(context, '/entrypage');
-                            },
+                        Text(
+                          "Entries",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: getViewportHeight(context) * 0.04,
+                            fontFamily: "Ubuntu",
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.menu,
+                            color: primary,
                           ),
                         ),
                       ],
                     ),
-                  )
-                ],
-              );
-            },
-          ),
+                  ),
+                ),
+                Container(
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: getViewportHeight(context) * 0.13,
+                      ),
+                      Center(
+                        child: FloatingActionButton(
+                          splashColor: Colors.red,
+                          backgroundColor: Colors.white,
+                          elevation: 5,
+                          child: Icon(Icons.add,
+                              size: getViewportHeight(context) * 0.05,
+                              color: primary),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pushNamed(context, '/entrypage');
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            );
+          },
         ),
       ),
     );

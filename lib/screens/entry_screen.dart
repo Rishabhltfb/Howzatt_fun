@@ -295,7 +295,6 @@ class _EntryPageState extends State<EntryPage> with WidgetsBindingObserver {
         builder: (BuildContext context, Widget child, MainModel model) {
           return SingleChildScrollView(
               child: Container(
-            height: getViewportHeight(context),
             margin: EdgeInsets.all(getViewportHeight(context) * 0.01),
             child: Form(
               key: _formKey,
