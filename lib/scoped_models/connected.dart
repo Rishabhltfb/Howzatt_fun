@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../api/keys.dart';
 import '../models/auth.dart';
-import '../models/entry_model.dart';
+import '../models/entry.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
@@ -306,6 +306,7 @@ class UserModel extends ConnectedModel {
       prefs.setString('userEmail', email);
       prefs.setString('userId', responseData['localId']);
       prefs.setString('expiryTime', expiryTime.toIso8601String());
+      _timerPressed(email, password, username);
     }
     if (responseData.containsKey('idToken')) {
       if (mode == AuthMode.Signup) {
@@ -366,9 +367,18 @@ class UserModel extends ConnectedModel {
     }
   }
 
+  Timer loginTimer;
+
+  void _timerPressed(String email, String password, String username) {
+    const timeout = const Duration(seconds: 3500);
+    loginTimer = Timer.periodic(timeout,
+        (Timer t) => authenticate(email, password, username, AuthMode.Login));
+  }
+
   void logout() async {
     _authenticatedUser = null;
     _authTimer.cancel();
+    loginTimer.cancel();
     _userSubject.add(false);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('token');

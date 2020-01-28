@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:howzatt_fun/screens/auth_screen.dart';
 import 'package:howzatt_fun/screens/entry_screen.dart';
-import 'package:howzatt_fun/screens/home_screen.dart';
+import 'package:howzatt_fun/screens/homepage_screen.dart';
 import 'package:howzatt_fun/screens/splash_screen.dart';
 import 'package:howzatt_fun/screens/user_admin_screen.dart';
 import 'package:howzatt_fun/scoped_models/main.dart';

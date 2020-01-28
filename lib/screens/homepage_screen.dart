@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:howzatt_fun/helpers/dimensions.dart';
-import 'package:howzatt_fun/widgets/admin.dart';
+import 'package:howzatt_fun/widgets/side_drawer.dart';
 import 'package:scoped_model/scoped_model.dart';
-
 import '../scoped_models/main.dart';
-import '../widgets/logout.dart';
 
 class HomePage extends StatefulWidget {
   final MainModel model;
@@ -17,6 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
+    WidgetsBinding.instance.renderView.automaticSystemUiAdjustment = false;
     widget.model.fetchEntries();
     super.initState();
   }
@@ -167,39 +166,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSideDrawer(BuildContext context) {
-    return Drawer(
-      child: Column(
-        children: <Widget>[
-          AppBar(
-            automaticallyImplyLeading: false,
-            title: Text('Choose'),
-          ),
-          ListTile(
-            leading: Icon(Icons.edit),
-            title: Text('Add Entry'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/entrypage');
-            },
-          ),
-          widget.model.authenticatedUser.isAdmin ? Divider() : Container(),
-          widget.model.authenticatedUser.isAdmin
-              ? AdminListTile()
-              : Container(),
-          Divider(),
-          LogoutListTile(),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Color(0xfff0f0f0),
-      drawer: _buildSideDrawer(context),
+      drawer: SideDrawer(model: widget.model,selectedIndex: 1,),
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -209,8 +181,8 @@ class _HomePageState extends State<HomePage> {
               return Stack(
                 children: <Widget>[
                   Container(
-                    padding:
-                        EdgeInsets.only(top: getViewportHeight(context) * 0.175),
+                    padding: EdgeInsets.only(
+                        top: getViewportHeight(context) * 0.175),
                     height: MediaQuery.of(context).size.height,
                     width: double.infinity,
                     child: ListView.builder(

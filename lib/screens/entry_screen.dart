@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:howzatt_fun/helpers/dimensions.dart';
 import 'package:howzatt_fun/helpers/flutter_icons.dart';
-import 'package:howzatt_fun/widgets/admin.dart';
+import 'package:howzatt_fun/widgets/side_drawer.dart';
 import 'package:scoped_model/scoped_model.dart';
-
 import '../scoped_models/main.dart';
-import '../models/entry_model.dart';
-import '../widgets/logout.dart';
+import '../models/entry.dart';
 
 class EntryPage extends StatefulWidget {
   final MainModel model;
+
   EntryPage(this.model);
   @override
   State<StatefulWidget> createState() {
@@ -28,32 +27,6 @@ class _EntryPageState extends State<EntryPage> with WidgetsBindingObserver {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final primary = Color(0xffdb002e);
   final secondary = Color(0xfff29a94);
-
-  Widget _buildSideDrawer(BuildContext context) {
-    return Drawer(
-      child: Column(
-        children: <Widget>[
-          AppBar(
-            automaticallyImplyLeading: false,
-            title: Text('Choose'),
-          ),
-          ListTile(
-            leading: Icon(Icons.home),
-            title: Text('Homepage'),
-            onTap: () {
-              Navigator.pushReplacementNamed(context, '/homepage');
-            },
-          ),
-          widget.model.authenticatedUser.isAdmin ? Divider() : Container(),
-          widget.model.authenticatedUser.isAdmin
-              ? AdminListTile()
-              : Container(),
-          Divider(),
-          LogoutListTile(),
-        ],
-      ),
-    );
-  }
 
   Widget _buildNameTextField(Entry entry) {
     return Container(
@@ -345,7 +318,7 @@ class _EntryPageState extends State<EntryPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: _buildSideDrawer(context),
+      drawer: SideDrawer(model: widget.model,selectedIndex: 2,),
       appBar: AppBar(
         title: Text('Add Entry'),
       ),
