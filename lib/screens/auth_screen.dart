@@ -107,6 +107,7 @@ class _AuthPageState extends State<AuthPage> {
             RaisedButton(
               color: Color(0xffdb002e),
               textColor: Colors.white,
+              splashColor: Colors.white,
               elevation: 10,
               padding: const EdgeInsets.all(10.0),
               shape: RoundedRectangleBorder(
