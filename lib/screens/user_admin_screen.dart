@@ -15,26 +15,29 @@ class UserAdminPage extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        drawer: SideDrawer(model: model,selectedIndex: 3,),
+        drawer: SideDrawer(
+          model: model,
+          selectedIndex: 3,
+        ),
         appBar: AppBar(
           title: Text('Manage Users'),
           bottom: TabBar(
             tabs: <Widget>[
               Tab(
-                icon: Icon(Icons.create),
-                text: 'User Requests',
-              ),
-              Tab(
                 icon: Icon(Icons.list),
                 text: 'All Users',
+              ),
+              Tab(
+                icon: Icon(Icons.create),
+                text: 'User Requests',
               ),
             ],
           ),
         ),
         body: TabBarView(
           children: <Widget>[
-            UserRequestPage(model),
             UserListPage(model),
+            UserRequestPage(model),
           ],
         ),
       ),

@@ -14,14 +14,15 @@ class SideDrawer extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _SideDrawerState(selectedIndex: selectedIndex);
+    return _SideDrawerState(selectedIndex: selectedIndex, mainModel: model);
   }
 }
 
 class _SideDrawerState extends State<SideDrawer> {
   final int selectedIndex;
+  final MainModel mainModel;
 
-  _SideDrawerState({@required this.selectedIndex});
+  _SideDrawerState({@required this.selectedIndex, @required this.mainModel});
 
   @override
   void initState() {
@@ -80,6 +81,7 @@ class _SideDrawerState extends State<SideDrawer> {
                         ),
                       )),
                   DrawerListItem(
+                    mainModel: mainModel,
                     tileIcon: FlutterIcon.list,
                     tileName: "Entries",
                     routeName: "/homepage",
@@ -89,6 +91,7 @@ class _SideDrawerState extends State<SideDrawer> {
                     thickness: 1,
                   ),
                   DrawerListItem(
+                    mainModel: mainModel,
                     tileIcon: Icons.edit,
                     tileName: "Add Entry",
                     routeName: "/entrypage",
@@ -99,6 +102,7 @@ class _SideDrawerState extends State<SideDrawer> {
                   ),
                   widget.model.authenticatedUser.isAdmin
                       ? DrawerListItem(
+                          mainModel: mainModel,
                           tileIcon: Icons.verified_user,
                           tileName: "Admin Panel",
                           routeName: "/admin",
@@ -109,6 +113,7 @@ class _SideDrawerState extends State<SideDrawer> {
                     thickness: 1,
                   ),
                   DrawerListItem(
+                    mainModel: mainModel,
                     tileIcon: Icons.settings_power,
                     tileName: "Log Out",
                     routeName: "/logout",

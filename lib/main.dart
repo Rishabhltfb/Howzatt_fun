@@ -22,8 +22,10 @@ class _MyAppState extends State<MyApp> {
     _model.fetchUsers();
     _model.autoAuthenticate();
     _model.userSubject.listen((bool isAuthenticated) {
-      setState(() {
-        _isAuthenticated = isAuthenticated;
+      Future.delayed(Duration.zero, () {
+        setState(() {
+          _isAuthenticated = isAuthenticated;
+        });
       });
     });
     super.initState();
@@ -39,7 +41,6 @@ class _MyAppState extends State<MyApp> {
           debugShowCheckedModeBanner: false,
           routes: {
             '/': (BuildContext context) => SplashPage(),
-            // '/authpage': (BuildContext context) => AuthPage(_model),
             '/homepage': (BuildContext context) =>
                 !_isAuthenticated ? AuthPage(_model) : HomePage(_model),
             '/entrypage': (BuildContext context) =>
