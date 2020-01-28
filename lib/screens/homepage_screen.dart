@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:howzatt_fun/helpers/dimensions.dart';
+import 'package:howzatt_fun/widgets/entry_list_item.dart';
 import 'package:howzatt_fun/widgets/side_drawer.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../scoped_models/main.dart';
@@ -24,151 +25,11 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  final TextStyle dropdownMenuItem =
-      TextStyle(color: Colors.black, fontSize: 18);
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final primary = Color(0xffdb002e);
   final secondary = Color(0xfff29a94);
 
-  Widget _buildListItem(BuildContext context, int index, MainModel model) {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          new BoxShadow(
-            blurRadius: 5.0,
-            color: Colors.blueGrey,
-          )
-        ],
-        borderRadius: BorderRadius.circular(25),
-        color: Colors.white,
-      ),
-      width: double.infinity,
-      height: 195,
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            width: 80,
-            height: 80,
-            margin: EdgeInsets.only(right: 15),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50),
-              border: Border.all(width: 3, color: primary),
-              image: DecorationImage(
-                  image: AssetImage('assets/user2.png'), fit: BoxFit.fill),
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  model.entryList[index].name,
-                  style: TextStyle(
-                      color: primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18),
-                ),
-                SizedBox(
-                  height: 7,
-                ),
-                Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.phone,
-                      color: secondary,
-                      size: 20,
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text(model.entryList[index].contact,
-                        style: TextStyle(
-                            color: primary, fontSize: 13, letterSpacing: .3)),
-                  ],
-                ),
-                SizedBox(
-                  height: 7,
-                ),
-                Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.check_circle,
-                      color: secondary,
-                      size: 20,
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text(
-                        model.entryList[index].overs.toInt().toString() +
-                            '  overs',
-                        style: TextStyle(
-                            color: primary, fontSize: 13, letterSpacing: .3)),
-                  ],
-                ),
-                SizedBox(
-                  height: 7,
-                ),
-                Row(
-                  children: <Widget>[
-                    Text(
-                      " \u20B9",
-                      style: TextStyle(color: secondary, fontSize: 20),
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text(model.entryList[index].price.toString(),
-                        style: TextStyle(
-                            color: primary, fontSize: 13, letterSpacing: .3)),
-                  ],
-                ),
-                SizedBox(
-                  height: 7,
-                ),
-                Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.access_time,
-                      color: secondary,
-                      size: 20,
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text(model.entryList[index].datetime,
-                        style: TextStyle(
-                            color: primary, fontSize: 13, letterSpacing: .3)),
-                  ],
-                ),
-                SizedBox(
-                  height: 7,
-                ),
-                Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.verified_user,
-                      color: secondary,
-                      size: 20,
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text(model.entryList[index].entryCreator,
-                        style: TextStyle(
-                            color: primary, fontSize: 13, letterSpacing: .3)),
-                  ],
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -193,14 +54,13 @@ class _HomePageState extends State<HomePage> {
                     width: double.infinity,
                     child: RefreshIndicator(
                       key: _refreshIndicatorKey,
-                      color: Colors.red,
                       onRefresh: () async {
                         await widget.model.fetchEntries();
                       },
                       child: ListView.builder(
                           itemCount: model.entryList.length,
                           itemBuilder: (BuildContext context, int index) {
-                            return _buildListItem(context, index, model);
+                            return EntryListItem(index: index,model: model,);
                           }),
                     )),
                 Container(
@@ -266,8 +126,7 @@ class _HomePageState extends State<HomePage> {
                               size: getViewportHeight(context) * 0.05,
                               color: primary),
                           onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.pushNamed(context, '/entrypage');
+                            Navigator.pushReplacementNamed(context, '/entrypage');
                           },
                         ),
                       ),
