@@ -30,30 +30,35 @@ class EntryModel extends ConnectedModel {
         .get(
             'https://howzatt-fun.firebaseio.com/entries.json?auth=${_authenticatedUser.token}')
         .then<Null>((http.Response response) {
-      final List<Entry> fetchedEntryList = [];
-      final Map<String, dynamic> entryListData = json.decode(response.body);
-      if (entryListData == null) {
-        _isLoading = false;
-        notifyListeners();
-        return;
-      }
+      if (response.statusCode == 200) {
+        final List<Entry> fetchedEntryList = [];
+        final Map<String, dynamic> entryListData = json.decode(response.body);
+        if (entryListData == null) {
+          _isLoading = false;
+          notifyListeners();
+          return;
+        }
 
-      entryListData.forEach((String id, dynamic entryData) {
-        final Entry entry = Entry(
-          id: id,
-          name: entryData['name'],
-          contact: entryData['contact'],
-          price: entryData['price'],
-          overs: entryData['overs'],
-          datetime: entryData['datetime'],
-          entryCreator: entryData['entryCreator'],
-        );
-        fetchedEntryList.add(entry);
-      });
-      _entryList = fetchedEntryList;
+        entryListData.forEach((String id, dynamic entryData) {
+          final Entry entry = Entry(
+            id: id,
+            name: entryData['name'],
+            contact: entryData['contact'],
+            price: entryData['price'],
+            overs: entryData['overs'],
+            datetime: entryData['datetime'],
+            entryCreator: entryData['entryCreator'],
+          );
+          fetchedEntryList.add(entry);
+        });
+        _entryList = fetchedEntryList;
+      } else {
+        print("Fetch Entries Error: ${json.decode(response.body)["error"].toString()}");
+      }
       _isLoading = false;
       notifyListeners();
     }).catchError((error) {
+      print("Fetch Entries Error: ${error.toString()}");
       _isLoading = false;
       notifyListeners();
       return;
@@ -138,6 +143,7 @@ class UserModel extends ConnectedModel {
     });
     _authenticatedUser = currentUser;
     _authenticatedUser.token = token;
+    notifyListeners();
   }
 
   Future<Null> fetchUsers() {
@@ -342,10 +348,12 @@ class UserModel extends ConnectedModel {
     notifyListeners();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
+    print(token);
     if (token != null) {
       setAuthTimeout();
       await refreshAuthToken();
       token = prefs.getString('token');
+      _isLoading = false;
       notifyListeners();
       return;
     }
@@ -360,6 +368,7 @@ class UserModel extends ConnectedModel {
   void refreshAuthToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String refreshToken = await prefs.get("refreshToken");
+    print(refreshToken);
     await http
         .post(
             "https://securetoken.googleapis.com/v1/token?key=${key.toString()}",
@@ -370,10 +379,14 @@ class UserModel extends ConnectedModel {
         Map<String, dynamic> responseBody = json.decode(value.body);
         await prefs.setString("token", responseBody["id_token"]);
         await prefs.setString("refreshToken", responseBody["refresh_token"]);
-        final String userId = prefs.getString('userId');
-        setAuthenticatedUser(token: responseBody["id_token"], userId: userId);
+        print(prefs.get("userId"));
+        setAuthenticatedUser(
+            token: responseBody["id_token"],
+            userId: await prefs.get("userId").toString());
+        _userSubject.add(true);
+        notifyListeners();
       } else {
-        print("Refresh Token Error: ${value.body}");
+        print("Refresh Token Status Error: ${value.body}");
       }
     }).catchError((error) {
       print("Refresh Token Error: $error");

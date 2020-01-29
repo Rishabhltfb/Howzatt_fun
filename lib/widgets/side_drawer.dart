@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:howzatt_fun/helpers/dimensions.dart';
 import 'package:howzatt_fun/helpers/flutter_icons.dart';
-import 'package:howzatt_fun/scoped_models/main.dart';
+import 'package:howzatt_fun/scoped_models/main_scoped_model.dart';
 import 'package:howzatt_fun/widgets/drawer_list_item.dart';
 
 class SideDrawer extends StatefulWidget {

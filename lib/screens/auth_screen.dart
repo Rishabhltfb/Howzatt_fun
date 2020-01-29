@@ -3,7 +3,7 @@ import 'package:howzatt_fun/helpers/dimensions.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../models/auth.dart';
-import '../scoped_models/main.dart';
+import '../scoped_models/main_scoped_model.dart';
 
 class AuthPage extends StatefulWidget {
   final MainModel model;

@@ -4,7 +4,7 @@ import 'package:howzatt_fun/screens/entry_screen.dart';
 import 'package:howzatt_fun/screens/homepage_screen.dart';
 import 'package:howzatt_fun/screens/splash_screen.dart';
 import 'package:howzatt_fun/screens/user_admin_screen.dart';
-import 'package:howzatt_fun/scoped_models/main.dart';
+import 'package:howzatt_fun/scoped_models/main_scoped_model.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 void main() => runApp(MyApp());
@@ -31,8 +31,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   void getAuth() async {
-    await _model.autoAuthenticate();
-    await _model.fetchUsers();
+    _model.fetchUsers();
+    _model.autoAuthenticate();
   }
 
   @override

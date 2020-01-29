@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:howzatt_fun/helpers/dimensions.dart';
-import 'package:howzatt_fun/scoped_models/main.dart';
+import 'package:howzatt_fun/scoped_models/main_scoped_model.dart';
 import 'package:howzatt_fun/widgets/logout_dialog.dart';
 
 class DrawerListItem extends StatelessWidget {

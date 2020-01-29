@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:howzatt_fun/helpers/dimensions.dart';
-import 'package:howzatt_fun/scoped_models/main.dart';
+import 'package:howzatt_fun/scoped_models/main_scoped_model.dart';
 
 void showLogoutDialog(
     {@required BuildContext context, @required MainModel mainModel}) {

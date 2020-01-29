@@ -3,7 +3,7 @@ import 'package:howzatt_fun/screens/all_users_screen.dart';
 import 'package:howzatt_fun/screens/user_request_screen.dart';
 import 'package:howzatt_fun/widgets/side_drawer.dart';
 
-import '../scoped_models/main.dart';
+import '../scoped_models/main_scoped_model.dart';
 
 class UserAdminPage extends StatelessWidget {
   final MainModel model;
