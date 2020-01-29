@@ -53,7 +53,8 @@ class EntryModel extends ConnectedModel {
         });
         _entryList = fetchedEntryList;
       } else {
-        print("Fetch Entries Error: ${json.decode(response.body)["error"].toString()}");
+        print(
+            "Fetch Entries Error: ${json.decode(response.body)["error"].toString()}");
       }
       _isLoading = false;
       notifyListeners();
@@ -111,6 +112,8 @@ class EntryModel extends ConnectedModel {
     }
   }
 }
+
+//................................User Model Starts..................................
 
 class UserModel extends ConnectedModel {
   final key = ApiKeys.apiKey;
@@ -301,13 +304,17 @@ class UserModel extends ConnectedModel {
     if (mode == AuthMode.Login &&
         !responseData.containsKey('error') &&
         _authenticatedUser.isEnabled) {
-      setAuthTimeout();
+      setAuthTimeout(int.parse(responseData['expiresIn']));
       _userSubject.add(true);
+      final DateTime now = DateTime.now();
+      final DateTime expiryTime =
+          now.add(Duration(seconds: int.parse(responseData['expiresIn'])));
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('token', responseData['idToken']);
       prefs.setString('userEmail', email);
       prefs.setString('refreshToken', responseData['refreshToken']);
       prefs.setString('userId', responseData['localId']);
+      prefs.setString('expiryTime', expiryTime.toIso8601String());
     }
     if (responseData.containsKey('idToken')) {
       if (mode == AuthMode.Signup) {
@@ -339,8 +346,8 @@ class UserModel extends ConnectedModel {
     return {'success': !hasError, 'message': message};
   }
 
-  void setAuthTimeout() {
-    _authTimer = Timer(Duration(seconds: 3000), refreshAuthToken);
+  void setAuthTimeout(int time) {
+    _authTimer = Timer(Duration(seconds: time), refreshAuthToken);
   }
 
   void autoAuthenticate() async {
@@ -348,49 +355,51 @@ class UserModel extends ConnectedModel {
     notifyListeners();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
-    print(token);
+    final String expiryTimeString = prefs.getString('expiryTime');
+    // print(token);
     if (token != null) {
-      setAuthTimeout();
-      await refreshAuthToken();
-      token = prefs.getString('token');
-      _isLoading = false;
+      final DateTime now = DateTime.now();
+      final parsedExpiryTime = DateTime.parse(expiryTimeString);
+      // await refreshAuthToken();
+      // token = prefs.getString('token');
+      if (parsedExpiryTime.isBefore(now)) {
+        await refreshAuthToken();
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      final String userId = prefs.getString('userId');
+      final int tokenLifespan = parsedExpiryTime.difference(now).inSeconds;
+      await fetchUsers();
+      setAuthenticatedUser(token: token, userId: userId);
+      _userSubject.add(true);
+      setAuthTimeout(tokenLifespan);
       notifyListeners();
-      return;
     }
-    final String userId = prefs.getString('userId');
-    await fetchUsers();
-    setAuthenticatedUser(token: token, userId: userId);
-    _userSubject.add(true);
-    setAuthTimeout();
-    notifyListeners();
   }
 
   void refreshAuthToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String refreshToken = await prefs.get("refreshToken");
-    print(refreshToken);
-    await http
-        .post(
-            "https://securetoken.googleapis.com/v1/token?key=${key.toString()}",
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: "grant_type=refresh_token&refresh_token=$refreshToken")
-        .then((value) async {
-      if (value.statusCode == 200) {
-        Map<String, dynamic> responseBody = json.decode(value.body);
-        await prefs.setString("token", responseBody["id_token"]);
-        await prefs.setString("refreshToken", responseBody["refresh_token"]);
-        print(prefs.get("userId"));
-        setAuthenticatedUser(
-            token: responseBody["id_token"],
-            userId: await prefs.get("userId").toString());
-        _userSubject.add(true);
-        notifyListeners();
-      } else {
-        print("Refresh Token Status Error: ${value.body}");
-      }
-    }).catchError((error) {
-      print("Refresh Token Error: $error");
-    });
+    final http.Response response = await http.post(
+        "https://securetoken.googleapis.com/v1/token?key=${key}",
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: "grant_type=refresh_token&refresh_token=$refreshToken");
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      Map<String, dynamic> responseBody = json.decode(response.body);
+      await prefs.setString("token", responseBody["id_token"]);
+      await prefs.setString("refreshToken", responseBody["refresh_token"]);
+      await prefs.setString("expiryTime", responseBody["expires_in"]);
+      setAuthTimeout(int.parse(responseBody["expires_in"]));
+      setAuthenticatedUser(
+          token: responseBody["id_token"],
+          userId: await prefs.get("userId").toString());
+      _userSubject.add(true);
+      notifyListeners();
+    } else {
+      print("Refresh Token Status Error: ${response.body}");
+    }
   }
 
   void logout() async {
@@ -399,8 +408,10 @@ class UserModel extends ConnectedModel {
     _userSubject.add(false);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
-    prefs.remove('userEmail');
-    prefs.remove('userId');
+    await prefs.remove('userEmail');
+    await prefs.remove('userId');
+    await prefs.remove('expiryTime');
+    await prefs.remove('refreshToken');
   }
 }
 

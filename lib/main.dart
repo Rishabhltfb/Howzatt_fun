@@ -45,6 +45,7 @@ class _MyAppState extends State<MyApp> {
           debugShowCheckedModeBanner: false,
           routes: {
             '/': (BuildContext context) => SplashPage(),
+            '/auth': (BuildContext context) => AuthPage(_model),
             '/homepage': (BuildContext context) =>
                 !_isAuthenticated ? AuthPage(_model) : HomePage(_model),
             '/entrypage': (BuildContext context) =>

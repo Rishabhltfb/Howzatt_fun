@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:howzatt_fun/helpers/dimensions.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
   @override
@@ -21,16 +20,8 @@ class _SplashPageState extends State<SplashPage>
     animationController =
         AnimationController(duration: const Duration(minutes: 3), vsync: this);
     animationController.repeat();
-    Timer(Duration(seconds: 3), () async {
-      SharedPreferences preferences = await SharedPreferences.getInstance();
-      String token = await preferences.get("token");
-      Future.delayed(Duration.zero, () {
-        if (token == null) {
-          Navigator.pushReplacementNamed(context, "/auth");
-        } else {
-          Navigator.pushReplacementNamed(context, "/homepage");
-        }
-      });
+    Timer(Duration(seconds: 3), () {
+      Navigator.pushReplacementNamed(context, "/homepage");
     });
   }
 
