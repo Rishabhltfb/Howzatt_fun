@@ -14,18 +14,24 @@ import '../models/user.dart';
 class ConnectedModel extends Model {
   List<User> _userList = [];
   List<Entry> _entryList = [];
-  User _authenticatedUser;
   bool _isLoading = false;
 }
+
+User _authenticatedUser;
 
 class EntryModel extends ConnectedModel {
   List<Entry> get entryList {
     return List.from(_entryList.reversed);
   }
 
+  bool firstTimeFetchEntries = false;
   Future<Null> fetchEntries() async {
     _isLoading = true;
     notifyListeners();
+    if (!firstTimeFetchEntries) {
+      await UserModel().refreshAuthToken();
+      firstTimeFetchEntries = true;
+    }
     return await http
         .get(
             'https://howzatt-fun.firebaseio.com/entries.json?auth=${_authenticatedUser.token}')
@@ -140,11 +146,12 @@ class UserModel extends ConnectedModel {
     return _userList.where((User user) => !user.isEnabled).toList();
   }
 
-  void setAuthenticatedUser({String token, String userId}) {
-    User currentUser = _userList.firstWhere((User user) {
-      return user.userId == userId;
-    });
-    _authenticatedUser = currentUser;
+  void setAuthenticatedUser({String token, String tempId}) {
+    for (User user in userList) {
+      if (tempId == user.userId) {
+        _authenticatedUser = user;
+      }
+    }
     _authenticatedUser.token = token;
     notifyListeners();
   }
@@ -298,13 +305,14 @@ class UserModel extends ConnectedModel {
     if (responseData.containsKey('idToken')) {
       setAuthenticatedUser(
         token: responseData['idToken'],
-        userId: responseData['localId'],
+        tempId: responseData['localId'],
       );
     }
+    print('user id login: ${responseData['localId']}');
     if (mode == AuthMode.Login &&
         !responseData.containsKey('error') &&
         _authenticatedUser.isEnabled) {
-      setAuthTimeout(int.parse(responseData['expiresIn']));
+      setAuthTimeout();
       _userSubject.add(true);
       final DateTime now = DateTime.now();
       final DateTime expiryTime =
@@ -325,7 +333,7 @@ class UserModel extends ConnectedModel {
       }
       setAuthenticatedUser(
         token: responseData['idToken'],
-        userId: responseData['localId'],
+        tempId: responseData['localId'],
       );
       _authenticatedUser.isEnabled ? hasError = false : hasError = true;
       _authenticatedUser.isEnabled
@@ -346,8 +354,8 @@ class UserModel extends ConnectedModel {
     return {'success': !hasError, 'message': message};
   }
 
-  void setAuthTimeout(int time) {
-    _authTimer = Timer(Duration(seconds: time), refreshAuthToken);
+  void setAuthTimeout() {
+    _authTimer = Timer(Duration(seconds: 3000), refreshAuthToken);
   }
 
   void autoAuthenticate() async {
@@ -355,51 +363,47 @@ class UserModel extends ConnectedModel {
     notifyListeners();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
-    final String expiryTimeString = prefs.getString('expiryTime');
     // print(token);
     if (token != null) {
-      final DateTime now = DateTime.now();
-      final parsedExpiryTime = DateTime.parse(expiryTimeString);
-      // await refreshAuthToken();
-      // token = prefs.getString('token');
-      if (parsedExpiryTime.isBefore(now)) {
-        await refreshAuthToken();
-        _isLoading = false;
-        notifyListeners();
-        return;
-      }
-
-      final String userId = prefs.getString('userId');
-      final int tokenLifespan = parsedExpiryTime.difference(now).inSeconds;
-      await fetchUsers();
-      setAuthenticatedUser(token: token, userId: userId);
       _userSubject.add(true);
-      setAuthTimeout(tokenLifespan);
+      await refreshAuthToken();
+      _isLoading = false;
       notifyListeners();
+    } else {
+      _isLoading = false;
+      notifyListeners();
+      _userSubject.add(false);
     }
   }
 
-  void refreshAuthToken() async {
+  Future<void> refreshAuthToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String refreshToken = await prefs.get("refreshToken");
     final http.Response response = await http.post(
         "https://securetoken.googleapis.com/v1/token?key=${key}",
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: "grant_type=refresh_token&refresh_token=$refreshToken");
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      Map<String, dynamic> responseBody = json.decode(response.body);
-      await prefs.setString("token", responseBody["id_token"]);
-      await prefs.setString("refreshToken", responseBody["refresh_token"]);
-      await prefs.setString("expiryTime", responseBody["expires_in"]);
-      setAuthTimeout(int.parse(responseBody["expires_in"]));
-      setAuthenticatedUser(
-          token: responseBody["id_token"],
-          userId: await prefs.get("userId").toString());
-      _userSubject.add(true);
-      notifyListeners();
-    } else {
-      print("Refresh Token Status Error: ${response.body}");
+    if (response != null) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Map<String, dynamic> responseBody = json.decode(response.body);
+        await prefs.setString("token", responseBody["id_token"]);
+        await prefs.setString("refreshToken", responseBody["refresh_token"]);
+        final DateTime now = DateTime.now();
+        final DateTime expiryTime =
+            now.add(Duration(seconds: int.parse(responseBody['expires_in'])));
+        await prefs.setString("expiryTime", expiryTime.toIso8601String());
+        await fetchUsers();
+        String userId = await prefs.get("userId");
+        await setAuthenticatedUser(
+            token: responseBody["id_token"], tempId: userId);
+        _userSubject.add(true);
+        print("Token Refreshed");
+      } else {
+        print("Refresh Token Status Error: ${response.body}");
+        _userSubject.add(false);
+      }
     }
+    setAuthTimeout();
   }
 
   void logout() async {

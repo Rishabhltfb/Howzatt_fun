@@ -282,6 +282,7 @@ class _AuthPageState extends State<AuthPage> {
             child: (!formVisible)
                 ? null
                 : Container(
+                    alignment: Alignment.center,
                     child: Form(
                       key: _formKey,
                       child: Container(

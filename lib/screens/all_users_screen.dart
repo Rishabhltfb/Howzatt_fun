@@ -53,9 +53,9 @@ class _UserListPageState extends State<UserListPage> {
                               color: Colors.green,
                             ),
                           ),
-                          onPressed: () {
+                          onPressed: () async{
+                            await model.disableUser(entryId);
                             Navigator.of(context).pop();
-                            model.disableUser(entryId);
                           },
                         ),
                         FlatButton(

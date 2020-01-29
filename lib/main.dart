@@ -31,8 +31,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   void getAuth() async {
-    _model.fetchUsers();
-    _model.autoAuthenticate();
+    await _model.fetchUsers();
+    await _model.autoAuthenticate();
   }
 
   @override
