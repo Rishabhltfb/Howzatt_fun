@@ -3,7 +3,7 @@ import 'package:howzatt_fun/helpers/dimensions.dart';
 import 'package:howzatt_fun/helpers/flutter_icons.dart';
 import 'package:howzatt_fun/widgets/side_drawer.dart';
 import 'package:scoped_model/scoped_model.dart';
-import '../scoped_models/main.dart';
+import '../scoped_models/main_scoped_model.dart';
 import '../models/entry.dart';
 
 class EntryPage extends StatefulWidget {

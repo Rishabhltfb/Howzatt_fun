@@ -30,30 +30,35 @@ class EntryModel extends ConnectedModel {
         .get(
             'https://howzatt-fun.firebaseio.com/entries.json?auth=${_authenticatedUser.token}')
         .then<Null>((http.Response response) {
-      final List<Entry> fetchedEntryList = [];
-      final Map<String, dynamic> entryListData = json.decode(response.body);
-      if (entryListData == null) {
-        _isLoading = false;
-        notifyListeners();
-        return;
-      }
+      if (response.statusCode == 200) {
+        final List<Entry> fetchedEntryList = [];
+        final Map<String, dynamic> entryListData = json.decode(response.body);
+        if (entryListData == null) {
+          _isLoading = false;
+          notifyListeners();
+          return;
+        }
 
-      entryListData.forEach((String id, dynamic entryData) {
-        final Entry entry = Entry(
-          id: id,
-          name: entryData['name'],
-          contact: entryData['contact'],
-          price: entryData['price'],
-          overs: entryData['overs'],
-          datetime: entryData['datetime'],
-          entryCreator: entryData['entryCreator'],
-        );
-        fetchedEntryList.add(entry);
-      });
-      _entryList = fetchedEntryList;
+        entryListData.forEach((String id, dynamic entryData) {
+          final Entry entry = Entry(
+            id: id,
+            name: entryData['name'],
+            contact: entryData['contact'],
+            price: entryData['price'],
+            overs: entryData['overs'],
+            datetime: entryData['datetime'],
+            entryCreator: entryData['entryCreator'],
+          );
+          fetchedEntryList.add(entry);
+        });
+        _entryList = fetchedEntryList;
+      } else {
+        print("Fetch Entries Error: ${json.decode(response.body)["error"].toString()}");
+      }
       _isLoading = false;
       notifyListeners();
     }).catchError((error) {
+      print("Fetch Entries Error: ${error.toString()}");
       _isLoading = false;
       notifyListeners();
       return;
@@ -65,7 +70,7 @@ class EntryModel extends ConnectedModel {
     _isLoading = true;
     notifyListeners();
     final DateTime now = DateTime.now();
-    String formattedDate = DateFormat('hh:mm a ,  EEE d MMM').format(now);
+    String formattedDate = DateFormat('hh:mm a, EEE, d MMM yyyy').format(now);
 
     final Map<String, dynamic> entryData = {
       'name': name,
@@ -138,6 +143,7 @@ class UserModel extends ConnectedModel {
     });
     _authenticatedUser = currentUser;
     _authenticatedUser.token = token;
+    notifyListeners();
   }
 
   Future<Null> fetchUsers() {
@@ -295,18 +301,13 @@ class UserModel extends ConnectedModel {
     if (mode == AuthMode.Login &&
         !responseData.containsKey('error') &&
         _authenticatedUser.isEnabled) {
-      setAuthTimeout(int.parse(responseData['expiresIn']));
+      setAuthTimeout();
       _userSubject.add(true);
-      final DateTime now = DateTime.now();
-      // String formattedDate = DateFormat('kk:mm EEE d MMM').format(now);
-      final DateTime expiryTime =
-          now.add(Duration(seconds: int.parse(responseData['expiresIn'])));
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('token', responseData['idToken']);
       prefs.setString('userEmail', email);
+      prefs.setString('refreshToken', responseData['refreshToken']);
       prefs.setString('userId', responseData['localId']);
-      prefs.setString('expiryTime', expiryTime.toIso8601String());
-      _timerPressed(email, password, username);
     }
     if (responseData.containsKey('idToken')) {
       if (mode == AuthMode.Signup) {
@@ -338,50 +339,66 @@ class UserModel extends ConnectedModel {
     return {'success': !hasError, 'message': message};
   }
 
-  void setAuthTimeout(int time) {
-    _authTimer = Timer(Duration(seconds: time), logout);
+  void setAuthTimeout() {
+    _authTimer = Timer(Duration(seconds: 3000), refreshAuthToken);
   }
 
   void autoAuthenticate() async {
     _isLoading = true;
     notifyListeners();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String token = prefs.getString('token');
-    final String expiryTimeString = prefs.getString('expiryTime');
+    String token = prefs.getString('token');
+    print(token);
     if (token != null) {
-      final DateTime now = DateTime.now();
-      final parsedExpiryTime = DateTime.parse(expiryTimeString);
-      if (parsedExpiryTime.isBefore(now)) {
-        _authenticatedUser = null;
-        _isLoading = false;
-        notifyListeners();
-        return;
-      }
-      final String userId = prefs.getString('userId');
-      final int tokenLifespan = parsedExpiryTime.difference(now).inSeconds;
-      await fetchUsers();
-      setAuthenticatedUser(token: token, userId: userId);
-      _userSubject.add(true);
-      setAuthTimeout(tokenLifespan);
+      setAuthTimeout();
+      await refreshAuthToken();
+      token = prefs.getString('token');
+      _isLoading = false;
       notifyListeners();
+      return;
     }
+    final String userId = prefs.getString('userId');
+    await fetchUsers();
+    setAuthenticatedUser(token: token, userId: userId);
+    _userSubject.add(true);
+    setAuthTimeout();
+    notifyListeners();
   }
 
-  Timer loginTimer;
-
-  void _timerPressed(String email, String password, String username) {
-    const timeout = const Duration(seconds: 3500);
-    loginTimer = Timer.periodic(timeout,
-        (Timer t) => authenticate(email, password, username, AuthMode.Login));
+  void refreshAuthToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String refreshToken = await prefs.get("refreshToken");
+    print(refreshToken);
+    await http
+        .post(
+            "https://securetoken.googleapis.com/v1/token?key=${key.toString()}",
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: "grant_type=refresh_token&refresh_token=$refreshToken")
+        .then((value) async {
+      if (value.statusCode == 200) {
+        Map<String, dynamic> responseBody = json.decode(value.body);
+        await prefs.setString("token", responseBody["id_token"]);
+        await prefs.setString("refreshToken", responseBody["refresh_token"]);
+        print(prefs.get("userId"));
+        setAuthenticatedUser(
+            token: responseBody["id_token"],
+            userId: await prefs.get("userId").toString());
+        _userSubject.add(true);
+        notifyListeners();
+      } else {
+        print("Refresh Token Status Error: ${value.body}");
+      }
+    }).catchError((error) {
+      print("Refresh Token Error: $error");
+    });
   }
 
   void logout() async {
     _authenticatedUser = null;
     _authTimer.cancel();
-    loginTimer.cancel();
     _userSubject.add(false);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('token');
+    await prefs.remove('token');
     prefs.remove('userEmail');
     prefs.remove('userId');
   }

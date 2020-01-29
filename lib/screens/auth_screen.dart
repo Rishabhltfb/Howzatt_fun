@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:howzatt_fun/helpers/dimensions.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../models/auth.dart';
-import '../scoped_models/main.dart';
+import '../scoped_models/main_scoped_model.dart';
 
 class AuthPage extends StatefulWidget {
   final MainModel model;
@@ -108,7 +109,7 @@ class _AuthPageState extends State<AuthPage> {
               color: Color(0xffdb002e),
               textColor: Colors.white,
               splashColor: Colors.white,
-              elevation: 10,
+              elevation: 5,
               padding: const EdgeInsets.all(10.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0),
@@ -119,7 +120,15 @@ class _AuthPageState extends State<AuthPage> {
                       ? Center(
                           child: CircularProgressIndicator(),
                         )
-                      : Text(_authMode == AuthMode.Login ? "Login" : "Signup");
+                      : Container(
+                          height: getViewportHeight(context) * 0.03,
+                          alignment: Alignment.center,
+                          child: Text(
+                            _authMode == AuthMode.Login ? "Login" : "Signup",
+                            style: TextStyle(
+                                fontFamily: "Ubuntu",
+                                fontSize: getViewportHeight(context) * 0.02),
+                          ));
                 },
               ),
               onPressed: () {
@@ -188,20 +197,25 @@ class _AuthPageState extends State<AuthPage> {
                       Text(
                         "Welcome",
                         style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 30.0,
-                        ),
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: getViewportHeight(context) * 0.05,
+                            fontFamily: "Raleway"),
                       ),
                       const SizedBox(height: 10.0),
-                      Text(
-                        "Welcome to this awesome cricket app. \n You are awesome !",
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 18.0,
+                      Container(
+                        padding:
+                            EdgeInsets.all(getViewportHeight(context) * 0.02),
+                        child: Text(
+                          "Welcome to HowzattFUN personal application. \n You are awesome !",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontFamily: "Ubuntu",
+                            fontSize: getViewportHeight(context) * 0.025,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
+                      )
                     ],
                   ),
                 ),
@@ -213,11 +227,17 @@ class _AuthPageState extends State<AuthPage> {
                       child: RaisedButton(
                         color: Color(0xffdb002e),
                         textColor: Colors.white,
-                        elevation: 10,
+                        elevation: 5,
+                        splashColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
-                        child: Text("Login"),
+                        child: Text(
+                          "Login",
+                          style: TextStyle(
+                              fontFamily: "Ubuntu",
+                              fontSize: getViewportHeight(context) * 0.02),
+                        ),
                         onPressed: () {
                           setState(() {
                             formVisible = true;
@@ -229,13 +249,19 @@ class _AuthPageState extends State<AuthPage> {
                     const SizedBox(width: 10.0),
                     Expanded(
                       child: RaisedButton(
+                        splashColor: Colors.white,
                         color: Colors.grey.shade700,
                         textColor: Colors.white,
-                        elevation: 10,
+                        elevation: 5,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
-                        child: Text("Signup"),
+                        child: Text(
+                          "Signup",
+                          style: TextStyle(
+                              fontFamily: "Ubuntu",
+                              fontSize: getViewportHeight(context) * 0.02),
+                        ),
                         onPressed: () {
                           setState(() {
                             formVisible = true;

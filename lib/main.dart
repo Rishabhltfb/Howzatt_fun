@@ -4,7 +4,7 @@ import 'package:howzatt_fun/screens/entry_screen.dart';
 import 'package:howzatt_fun/screens/homepage_screen.dart';
 import 'package:howzatt_fun/screens/splash_screen.dart';
 import 'package:howzatt_fun/screens/user_admin_screen.dart';
-import 'package:howzatt_fun/scoped_models/main.dart';
+import 'package:howzatt_fun/scoped_models/main_scoped_model.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 void main() => runApp(MyApp());
@@ -19,14 +19,20 @@ class _MyAppState extends State<MyApp> {
   bool _isAuthenticated = false;
   @override
   void initState() {
-    _model.fetchUsers();
-    _model.autoAuthenticate();
+    getAuth();
     _model.userSubject.listen((bool isAuthenticated) {
-      setState(() {
-        _isAuthenticated = isAuthenticated;
+      Future.delayed(Duration.zero, () {
+        setState(() {
+          _isAuthenticated = isAuthenticated;
+        });
       });
     });
     super.initState();
+  }
+
+  void getAuth() async {
+    _model.fetchUsers();
+    _model.autoAuthenticate();
   }
 
   @override
@@ -39,7 +45,6 @@ class _MyAppState extends State<MyApp> {
           debugShowCheckedModeBanner: false,
           routes: {
             '/': (BuildContext context) => SplashPage(),
-            // '/authpage': (BuildContext context) => AuthPage(_model),
             '/homepage': (BuildContext context) =>
                 !_isAuthenticated ? AuthPage(_model) : HomePage(_model),
             '/entrypage': (BuildContext context) =>
