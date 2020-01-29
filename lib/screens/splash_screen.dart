@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:howzatt_fun/helpers/dimensions.dart';
+
 class SplashPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -8,10 +10,16 @@ class SplashPage extends StatefulWidget {
   }
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
+  AnimationController animationController;
+
   @override
   void initState() {
     super.initState();
+    animationController =
+        AnimationController(duration: const Duration(minutes: 3), vsync: this);
+    animationController.repeat();
     Timer(Duration(seconds: 3), () {
       Navigator.pushReplacementNamed(context, '/homepage');
     });
@@ -20,11 +28,14 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
           Container(
-            decoration: BoxDecoration(color: Color(0xffdb002e)),
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(color: Colors.white),
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -36,17 +47,19 @@ class _SplashPageState extends State<SplashPage> {
                   children: <Widget>[
                     CircleAvatar(
                       backgroundColor: Colors.transparent,
-                      backgroundImage: AssetImage('assets/logo.jpeg'),
-                      radius: 80.0,
+                      backgroundImage: AssetImage('assets/app_logo.png'),
+                      radius: getViewportHeight(context) * 0.1,
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 10.0),
+                      padding: EdgeInsets.only(
+                          top: getViewportHeight(context) * 0.1),
                     ),
                     Text(
-                      "Howzatt Fun",
+                      "HowzattFUN",
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24.0,
+                          color: Colors.red,
+                          fontSize: getViewportHeight(context) * 0.06,
+                          fontFamily: "Raleway",
                           fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -57,15 +70,34 @@ class _SplashPageState extends State<SplashPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    CircularProgressIndicator(),
+                    AnimatedBuilder(
+                      animation: animationController,
+                      child: Container(
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(shape: BoxShape.circle),
+                          child: Image.asset(
+                            'assets/cricket_ball.png',
+                            height: getViewportHeight(context) * 0.1,
+                            width: getViewportHeight(context) * 0.1,
+                            fit: BoxFit.fill,
+                          )),
+                      builder: (BuildContext context, Widget _widget) {
+                        return Transform.rotate(
+                          angle: animationController.value * 500,
+                          child: _widget,
+                        );
+                      },
+                    ),
                     Padding(
-                      padding: EdgeInsets.only(top: 20.0),
+                      padding: EdgeInsets.only(
+                          top: getViewportHeight(context) * 0.15),
                     ),
                     Text(
                       "Cricket Academy\n    For Everyone",
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18.0,
+                        color: Colors.red,
+                        fontSize: getViewportHeight(context) * 0.025,
+                        fontFamily: "Ubuntu",
                         fontWeight: FontWeight.bold,
                       ),
                     ),

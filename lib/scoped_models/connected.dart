@@ -370,6 +370,8 @@ class UserModel extends ConnectedModel {
         Map<String, dynamic> responseBody = json.decode(value.body);
         await prefs.setString("token", responseBody["id_token"]);
         await prefs.setString("refreshToken", responseBody["refresh_token"]);
+        final String userId = prefs.getString('userId');
+        setAuthenticatedUser(token: responseBody["id_token"], userId: userId);
       } else {
         print("Refresh Token Error: ${value.body}");
       }

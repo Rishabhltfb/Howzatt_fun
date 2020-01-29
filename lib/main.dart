@@ -19,8 +19,7 @@ class _MyAppState extends State<MyApp> {
   bool _isAuthenticated = false;
   @override
   void initState() {
-    _model.fetchUsers();
-    _model.autoAuthenticate();
+    getAuth();
     _model.userSubject.listen((bool isAuthenticated) {
       Future.delayed(Duration.zero, () {
         setState(() {
@@ -29,6 +28,11 @@ class _MyAppState extends State<MyApp> {
       });
     });
     super.initState();
+  }
+
+  void getAuth() async {
+    await _model.autoAuthenticate();
+    await _model.fetchUsers();
   }
 
   @override
