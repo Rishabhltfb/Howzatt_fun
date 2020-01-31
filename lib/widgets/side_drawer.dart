@@ -43,7 +43,7 @@ class _SideDrawerState extends State<SideDrawer> {
               child: ListView(
                 children: <Widget>[
                   Container(
-                      height: getViewportHeight(context) * 0.25,
+                      height: getViewportHeight(context) * 0.275,
                       child: DrawerHeader(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(

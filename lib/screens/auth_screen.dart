@@ -187,7 +187,7 @@ class _AuthPageState extends State<AuthPage> {
       child: Stack(
         children: <Widget>[
           Container(
-            color: Colors.black54,
+            color: formVisible ? Colors.black87 : Colors.black54,
             child: Column(
               children: <Widget>[
                 const SizedBox(height: kToolbarHeight + 40),
@@ -220,138 +220,144 @@ class _AuthPageState extends State<AuthPage> {
                   ),
                 ),
                 const SizedBox(height: 10.0),
-                Row(
-                  children: <Widget>[
-                    const SizedBox(width: 10.0),
-                    Expanded(
-                      child: RaisedButton(
-                        color: Color(0xffdb002e),
-                        textColor: Colors.white,
-                        elevation: 5,
-                        splashColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        child: Text(
-                          "Login",
-                          style: TextStyle(
-                              fontFamily: "Ubuntu",
-                              fontSize: getViewportHeight(context) * 0.02),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            formVisible = true;
-                            _authMode = AuthMode.Login;
-                          });
-                        },
+                formVisible
+                    ? Container()
+                    : Row(
+                        children: <Widget>[
+                          const SizedBox(width: 10.0),
+                          Expanded(
+                            child: RaisedButton(
+                              color: Color(0xffdb002e),
+                              textColor: Colors.white,
+                              elevation: 5,
+                              splashColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              child: Text(
+                                "Login",
+                                style: TextStyle(
+                                    fontFamily: "Ubuntu",
+                                    fontSize:
+                                        getViewportHeight(context) * 0.02),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  formVisible = true;
+                                  _authMode = AuthMode.Login;
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10.0),
+                          Expanded(
+                            child: RaisedButton(
+                              splashColor: Colors.white,
+                              color: Colors.grey.shade700,
+                              textColor: Colors.white,
+                              elevation: 5,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              child: Text(
+                                "Signup",
+                                style: TextStyle(
+                                    fontFamily: "Ubuntu",
+                                    fontSize:
+                                        getViewportHeight(context) * 0.02),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  formVisible = true;
+                                  _authMode = AuthMode.Signup;
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10.0),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 10.0),
-                    Expanded(
-                      child: RaisedButton(
-                        splashColor: Colors.white,
-                        color: Colors.grey.shade700,
-                        textColor: Colors.white,
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        child: Text(
-                          "Signup",
-                          style: TextStyle(
-                              fontFamily: "Ubuntu",
-                              fontSize: getViewportHeight(context) * 0.02),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            formVisible = true;
-                            _authMode = AuthMode.Signup;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10.0),
-                  ],
-                ),
                 const SizedBox(height: 60.0),
               ],
             ),
           ),
           AnimatedSwitcher(
-            duration: Duration(milliseconds: 200),
-            child: (!formVisible)
-                ? null
-                : Container(
-                    child: Form(
-                      key: _formKey,
+              duration: Duration(milliseconds: 200),
+              child: (!formVisible)
+                  ? null
+                  : Center(
+                      child: SingleChildScrollView(
                       child: Container(
-                        color: Colors.black54,
                         alignment: Alignment.center,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                        child: Form(
+                          key: _formKey,
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
-                                RaisedButton(
-                                  textColor: _authMode == AuthMode.Login
-                                      ? Colors.white
-                                      : Colors.black,
-                                  color: _authMode == AuthMode.Login
-                                      ? Color(0xffdb002e)
-                                      : Colors.white,
-                                  child: Text("Login"),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(20.0)),
-                                  onPressed: () {
-                                    setState(() {
-                                      _authMode = AuthMode.Login;
-                                    });
-                                  },
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    RaisedButton(
+                                      textColor: _authMode == AuthMode.Login
+                                          ? Colors.white
+                                          : Colors.black,
+                                      color: _authMode == AuthMode.Login
+                                          ? Color(0xffdb002e)
+                                          : Colors.white,
+                                      child: Text("Login"),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0)),
+                                      onPressed: () {
+                                        setState(() {
+                                          _authMode = AuthMode.Login;
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(width: 10.0),
+                                    RaisedButton(
+                                      textColor: _authMode == AuthMode.Signup
+                                          ? Colors.white
+                                          : Colors.black,
+                                      color: _authMode == AuthMode.Signup
+                                          ? Color(0xffdb002e)
+                                          : Colors.white,
+                                      child: Text("Signup"),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0)),
+                                      onPressed: () {
+                                        setState(() {
+                                          _authMode = AuthMode.Signup;
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(width: 10.0),
+                                    IconButton(
+                                      color: Colors.white,
+                                      icon: Icon(Icons.clear),
+                                      onPressed: () {
+                                        setState(() {
+                                          formVisible = false;
+                                        });
+                                      },
+                                    )
+                                  ],
                                 ),
-                                const SizedBox(width: 10.0),
-                                RaisedButton(
-                                  textColor: _authMode == AuthMode.Signup
-                                      ? Colors.white
-                                      : Colors.black,
-                                  color: _authMode == AuthMode.Signup
-                                      ? Color(0xffdb002e)
-                                      : Colors.white,
-                                  child: Text("Signup"),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(20.0)),
-                                  onPressed: () {
-                                    setState(() {
-                                      _authMode = AuthMode.Signup;
-                                    });
-                                  },
-                                ),
-                                const SizedBox(width: 10.0),
-                                IconButton(
-                                  color: Colors.white,
-                                  icon: Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      formVisible = false;
-                                    });
-                                  },
+                                Container(
+                                  child: AnimatedSwitcher(
+                                    duration: Duration(milliseconds: 300),
+                                    child: _buildForm(),
+                                  ),
                                 )
                               ],
                             ),
-                            Container(
-                              child: AnimatedSwitcher(
-                                duration: Duration(milliseconds: 300),
-                                child: _buildForm(),
-                              ),
-                            )
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-          )
+                    )))
         ],
       ),
     ));
